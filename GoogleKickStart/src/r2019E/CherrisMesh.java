@@ -1,83 +1,88 @@
+package r2019E;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class CherrisMesh {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int D = in.nextInt();
-			int S = in.nextInt();
-			TimeSlot[] timeSlots = new TimeSlot[S];
-			for (int j = 0; j < S; j++) {
-				timeSlots[j] = new TimeSlot(in.nextInt(), in.nextInt());
-			}
-			int[][] days = getIntArr(in, D, 2);
-			String r = solve(S, D, timeSlots, days);
+			int n = in.nextInt();
+			int m = in.nextInt();
+			int[][] edges = getIntArr(in, m, 2);
+			int r = solve(n, m, edges);
 			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static String solve(int S, int D, TimeSlot[] timeSlots, int[][] days) {
-		Arrays.sort(timeSlots);
-		long[] prefSumC = new long[S + 1];
-		long[] suffixSumE = new long[S + 2];
+	private static int solve(int n, int m, int[][] edges) {
+		UnionFindSet<Integer> ufs = new UnionFindSet<>();
+		for (int i = 1; i <= n; i++) {
+			ufs.makeSet(i);
+		}
+		for (int[] edge : edges) {
+			ufs.union(edge[0], edge[1]);
+		}
+		int c = ufs.countGroups();
+		return n + c - 2;
+	}
 
-		for (int i = 1; i <= S; i++) {
-			prefSumC[i] = prefSumC[i - 1] + timeSlots[i - 1].c;
+	static class UnionFindSet<T> {
+		Map<T, T> parents = new HashMap<T, T>();
+		Map<T, Integer> ranks = new HashMap<T, Integer>();
+
+		public void makeSet(T x) {
+			parents.put(x, x);
+			ranks.put(x, 1);
 		}
-		for (int i = S; i > 0; i--) {
-			suffixSumE[i] = suffixSumE[i + 1] + timeSlots[i - 1].e;
-		}
-		StringBuilder ans = new StringBuilder();
-		for (int[] day : days) {
-			int ub = Arrays.binarySearch(prefSumC, day[0]);
-			if (ub < 0) {
-				ub = -ub - 1;
-			}
-			if (ub > S) {
-				ans.append("N");
+
+		/**
+		 * Find representation of a set which contains x while path compression
+		 */
+		public T findSet(T x) {
+			T parent = parents.get(x);
+			if (parent == x) {
+				return x;
 			} else {
-				long fullE = 0;
-				if (ub + 1 <= S) {
-					fullE += suffixSumE[ub + 1] - suffixSumE[S + 1];
-				}
-				long extraC = prefSumC[ub] - day[0];
-				long requiredE = day[1] - fullE;
-				if (ub == 0) {
-					ans.append((requiredE <= 0) ? "Y" : "N");
+				T root = findSet(parent);
+				parents.put(x, root);
+				return root;
+			}
+		}
+
+		/**
+		 * Union 2 sets with respect to their ranks
+		 */
+		public void union(T x, T y) {
+			T xRoot = findSet(x);
+			T yRoot = findSet(y);
+			if (xRoot != yRoot) {
+				int xRank = ranks.get(x);
+				int yRank = ranks.get(y);
+				if (xRank > yRank) {
+					parents.put(yRoot, xRoot);
 				} else {
-					if (requiredE * timeSlots[ub - 1].c <= timeSlots[ub - 1].e * extraC) {
-						ans.append("Y");
-					} else {
-						ans.append("N");
+					parents.put(xRoot, yRoot);
+					if (xRank == yRank) {
+						ranks.put(yRoot, ranks.get(yRoot) + 1);
 					}
 				}
 			}
 		}
-		return ans.toString();
-	}
 
-	static class TimeSlot implements Comparable<TimeSlot> {
-		int c;
-		int e;
-
-		public TimeSlot(int c, int e) {
-			super();
-			this.c = c;
-			this.e = e;
-		}
-
-		@Override
-		public int compareTo(TimeSlot that) {
-			return Integer.compare(that.c * e, c * that.e);
+		public int countGroups() {
+			HashSet<T> set = new HashSet<>();
+			for (T k : parents.keySet()) {
+				set.add(findSet(k));
+			}
+			return set.size();
 		}
 	}
 
