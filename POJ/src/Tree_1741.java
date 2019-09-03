@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Main {
+public class Tree_1741 {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int n = in.nextInt();
