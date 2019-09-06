@@ -95,8 +95,8 @@ private fun printStringArray(a: Array<String>) {
 private fun main() {
     var n = readInt()
     val k = readInt()
-    for (i in 1..k){
-        n = if(n%10==0) n/10 else n-1;
+    for (i in 1..k) {
+        n = if (n % 10 == 0) n / 10 else n - 1;
     }
     println(n)
 }

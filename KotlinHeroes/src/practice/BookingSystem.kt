@@ -94,14 +94,40 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-    val (n, k) = readlnInts()
-    val a = readlnInts()
-    val sa = a.sorted()
-    if (k == 0) {
-        println(if (sa[0] == 1) -1 else 1)
-    } else if (k >= n || sa[k - 1] != sa[k]) {
-        println(sa[k - 1])
-    } else {
-        println(-1)
+    val n = readlnInt()
+    val visitors = mutableListOf<Visitor>()
+    for (i in 1..n) {
+        val (c, r) = readlnInts()
+        visitors.add(Visitor(c, r, i))
+    }
+    visitors.sortByDescending { it.p }
+    val k = readlnInt()
+    val r = readlnInts()
+    val tm = TreeMap<Int, Queue<Int>>()
+    for (i in 1..k) {
+        val q = tm.getOrDefault(r[i - 1], LinkedList())
+        q.offer(i)
+        tm[r[i - 1]] = q
+    }
+    var totalReq = 0
+    var totalPayment = 0
+    val ans = mutableListOf<IntArray>()
+    for (i in 1..n) {
+        val e = tm.ceilingEntry(visitors[i - 1].c)
+        if (e != null) {
+            totalPayment += visitors[i - 1].p
+            totalReq++
+            ans.add(intArrayOf(visitors[i - 1].i, e.value.poll()))
+            if (e.value.isEmpty()) {
+                tm.remove(e.key)
+            }
+        }
+    }
+    ans.sortBy { it[0] }
+    println("$totalReq $totalPayment")
+    for (a in ans) {
+        println("${a[0]} ${a[1]}")
     }
 }
+
+data class Visitor(val c: Int, val p: Int, val i: Int)

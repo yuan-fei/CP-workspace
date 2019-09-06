@@ -1,10 +1,6 @@
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
 
-import java.io.*
-import java.lang.Math.max
-import java.util.*
-
 private fun readln() = readLine()!!
 private fun readlnByte() = readln().toByte()
 private fun readlnShort() = readln().toShort()
@@ -91,25 +87,7 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
+
 private fun main() {
-    val n = readlnInt()
-//    println(readlnStrings())
-    val arr = readlnLongs()
-    val sb = StringBuilder()
-    arr.map { NumberWithFactorCount(it, countFactor(it, 3), countFactor(it, 2)) }
-        .sortedWith(Comparator { a, b -> if (a.f3 != b.f3) b.f3.compareTo(a.f3) else a.f2.compareTo(b.f2) })
-        .forEach { sb.append(it.n.toString() + " ") };
-    println(sb.toString())
-}
-
-data class NumberWithFactorCount(val n: Long, val f3: Int, val f2: Int)
-
-private fun countFactor(n: Long, f: Int): Int {
-    var cnt = 0
-    var nn = n
-    while (nn % f == 0L) {
-        nn /= f
-        cnt++
-    }
-    return cnt
+    val (n, k) = readlnInts()
 }

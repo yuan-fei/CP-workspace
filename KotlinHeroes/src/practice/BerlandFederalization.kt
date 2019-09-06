@@ -3,9 +3,7 @@ package practice
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
 
-import java.io.*
-import java.lang.Math.max
-import java.util.*
+import kotlin.math.*
 
 private fun readln() = readLine()!!
 private fun readlnByte() = readln().toByte()
@@ -93,15 +91,107 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
+private const val MAX = 500
+private var N = 0
+private var K = 0
+private var g = Array(0){ mutableListOf<IntArray>() }
+private var dp = Array(0){IntArray(0)}
+private var solution = Array(0){Array<Solution?>(0){null} }
+private var ts = IntArray(0)
+private var edge = IntArray(0)
 private fun main() {
     val (n, k) = readlnInts()
-    val a = readlnInts()
-    val sa = a.sorted()
-    if (k == 0) {
-        println(if (sa[0] == 1) -1 else 1)
-    } else if (k >= n || sa[k - 1] != sa[k]) {
-        println(sa[k - 1])
-    } else {
-        println(-1)
+    N = n
+    K = k
+    g = Array(N + 1) { mutableListOf<IntArray>() }
+    dp = Array(N + 1){ IntArray(N + 1){ MAX } }
+    edge = IntArray(N + 1){-1}
+    solution = Array(N + 1){ Array<Solution?>(N + 1){ null } }
+    ts = IntArray(N + 1)
+    for (i in 1 until N){
+        val (u, v) = readlnInts()
+        g[u].add(intArrayOf(v, i))
+        g[v].add(intArrayOf(u, i))
+    }
+    subTreeSize(1, 0)
+    getEdge(1,0, -1)
+    dfs(1, 0)
+    var min = dp[1][K]
+    var idx = 1
+    for (i in 1..n){
+        if(min > dp[i][K] + 1){
+            min = dp[i][K] + 1
+            idx = i
+        }
+    }
+    println(min)
+    val ans = mutableListOf<Int>()
+    if(idx > 1){
+        ans.add(edge[idx])
+    }
+    getSolution(solution[idx][K], ans)
+    for (i in ans){
+        print("$i ")
+    }
+}
+
+private fun getSolution(sol: Solution?, ans: MutableList<Int>) {
+//    println(sol)
+    if(sol is Solution){
+        if(sol.left == null && sol.right == null && sol.idx > 0){
+            ans.add(sol.idx)
+        }
+        getSolution(sol.left, ans)
+        getSolution(sol.right, ans)
+    }
+}
+
+private fun dfs(u:Int, p:Int){
+    dp[u][0] = 1
+    dp[u][1] = 0
+    solution[u][0] = Solution(u, 0, edge[u], null, null)
+    var curSubTreeSize = 1
+    for (v in g[u]){
+        if(v[0] != p){
+            dfs(v[0], u)
+            curSubTreeSize += ts[v[0]]
+//            println("$u + ${v[0]}: $curSubTreeSize")
+            for (j in curSubTreeSize downTo 1){
+                var tmp = Int.MAX_VALUE
+                for (l in 0..min(ts[v[0]], j-1)){
+                    if(tmp > dp[v[0]][l] + dp[u][j - l]){
+                        tmp = dp[v[0]][l] + dp[u][j - l]
+                        solution[u][j] = Solution(u,j,-1, solution[u][j-l], solution[v[0]][l])
+//                        println("[$u, $j] = [$u, ${j-1}] + [${v[0]}, $l]")
+                    }
+                }
+                dp[u][j] = tmp
+            }
+        }
+    }
+}
+
+private fun subTreeSize(u:Int, p:Int):Int{
+    ts[u] = 1
+    for (v in g[u]){
+        if(v[0] != p){
+            ts[u] += subTreeSize(v[0], u)
+        }
+    }
+    return ts[u]
+}
+
+private fun getEdge(u:Int, p:Int, e:Int){
+    edge[u] = e
+    for (v in g[u]){
+        if(v[0] != p){
+            getEdge(v[0], u, v[1])
+        }
+    }
+}
+
+private data class Solution(val start:Int, val end:Int, val idx:Int, val left: Solution?, val right: Solution?){
+    override fun toString(): String {
+        return "[$start, $end] = $idx"
     }
 }

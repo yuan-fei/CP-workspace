@@ -4,7 +4,7 @@ package practice
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
 
 import java.io.*
-import java.lang.Math.max
+import java.lang.Math.*
 import java.util.*
 
 private fun readln() = readLine()!!
@@ -94,14 +94,72 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-    val (n, k) = readlnInts()
-    val a = readlnInts()
-    val sa = a.sorted()
-    if (k == 0) {
-        println(if (sa[0] == 1) -1 else 1)
-    } else if (k >= n || sa[k - 1] != sa[k]) {
-        println(sa[k - 1])
-    } else {
-        println(-1)
+    val n = readlnLong()
+    var ans = solve(n)
+    println(ans)
+}
+
+private fun solve(n: Long): Int {
+    var d = getDigitCount(n)
+    return dfs1(n, d + 1, 0)
+}
+
+private const val MAX = 100000
+fun dfs(n: Long, d: Int, c: Int): Int {
+    if (d == 0) {
+        return if (n == 0L) c else MAX
     }
+    var minC = Int.MAX_VALUE
+    for (i in 0..9) {
+        val addend = gen(i, d)
+        minC = minC.coerceAtMost(dfs(n + addend, d - 1, c + d * i))
+        minC = minC.coerceAtMost(dfs(n - addend, d - 1, c + d * i))
+    }
+    return minC
+}
+
+fun dfs1(n: Long, d: Int, c: Int): Int {
+    if (d == 0) {
+        return if (n == 0L) c else MAX
+    }
+    val hd = getHighestDigit(n)
+    var minC = Int.MAX_VALUE
+    val maxDiff = gen(1, d)
+    for (i in 0..9) {
+        val addend = gen(i, d)
+        if (kotlin.math.abs(n - addend) < maxDiff) {
+
+            minC = minC.coerceAtMost(dfs1(kotlin.math.abs(n - addend), d - 1, c + d * i))
+        }
+    }
+    return minC
+}
+
+private fun gen(n: Int, k: Int): Long {
+    var ret = 0L
+    var i = 0
+    while (i < k) {
+        ret *= 10
+        ret += n
+        i++
+    }
+    return ret
+}
+
+private fun getDigitCount(n: Long): Int {
+    var x = n
+    var i = 0
+    while (x != 0L) {
+        x /= 10
+        i++
+    }
+    return i
+}
+
+private fun getHighestDigit(n: Long): Int {
+    var x = n
+    while (x / 10 != 0L) {
+        x /= 10
+    }
+    return x.toInt()
 }

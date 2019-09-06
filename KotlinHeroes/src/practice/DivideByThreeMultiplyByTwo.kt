@@ -94,14 +94,24 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-    val (n, k) = readlnInts()
-    val a = readlnInts()
-    val sa = a.sorted()
-    if (k == 0) {
-        println(if (sa[0] == 1) -1 else 1)
-    } else if (k >= n || sa[k - 1] != sa[k]) {
-        println(sa[k - 1])
-    } else {
-        println(-1)
+    val n = readlnInt()
+//    println(readlnStrings())
+    val arr = readlnLongs()
+    val sb = StringBuilder()
+    arr.map { NumberWithFactorCount(it, countFactor(it, 3), countFactor(it, 2)) }
+        .sortedWith(Comparator { a, b -> if (a.f3 != b.f3) b.f3.compareTo(a.f3) else a.f2.compareTo(b.f2) })
+        .forEach { sb.append(it.n.toString() + " ") };
+    println(sb.toString())
+}
+
+data class NumberWithFactorCount(val n: Long, val f3: Int, val f2: Int)
+
+private fun countFactor(n: Long, f: Int): Int {
+    var cnt = 0
+    var nn = n
+    while (nn % f == 0L) {
+        nn /= f
+        cnt++
     }
+    return cnt
 }

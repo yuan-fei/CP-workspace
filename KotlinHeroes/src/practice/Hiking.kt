@@ -3,9 +3,7 @@ package practice
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
 
-import java.io.*
-import java.lang.Math.max
-import java.util.*
+import kotlin.math.*
 
 private fun readln() = readLine()!!
 private fun readlnByte() = readln().toByte()
@@ -94,14 +92,52 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-    val (n, k) = readlnInts()
-    val a = readlnInts()
-    val sa = a.sorted()
-    if (k == 0) {
-        println(if (sa[0] == 1) -1 else 1)
-    } else if (k >= n || sa[k - 1] != sa[k]) {
-        println(sa[k - 1])
-    } else {
-        println(-1)
+    val (n, l) = readlnInts()
+    val rests = mutableListOf<RestPoint>()
+    rests.add(RestPoint(0.0, 0))
+    for (i in 1..n){
+        val (x, b) = readlnInts()
+        rests.add(RestPoint(x.toDouble(), b))
+    }
+    var low = 0.0
+    var high = sqrt(abs(rests[n].x - l)) / rests[n].b
+    //loop 100 times, e <= 10^-30
+    for (i in 1..100){
+        val mid = (low + high) / 2
+        if(feasible(mid, n, l, rests)){
+            high = mid
+        }
+        else{
+            low = mid
+        }
+    }
+    val ans = mutableListOf<Int>()
+    var idx = n
+    while (idx != 0){
+        ans.add(idx)
+        idx = prev[idx]
+    }
+    for (i in ans.reversed()){
+        print("$i ")
     }
 }
+
+var prev: IntArray = intArrayOf()
+private fun feasible(r: Double, n: Int, l: Int, rests: MutableList<RestPoint>): Boolean {
+    prev = IntArray(n+1)
+    val d = DoubleArray(n + 1){Double.MAX_VALUE}
+    d[0] = 0.0
+    for (i in 0..n){
+        for (j in i+1..n){
+            val c = d[i]+cost(rests[i], rests[j], l, r)
+            if(d[j] > c){
+                d[j] = c
+                prev[j] = i
+            }
+        }
+    }
+    return d[n] <= 0.0
+}
+
+private fun cost(from:RestPoint, to:RestPoint, l:Int, r:Double) = sqrt(abs(to.x-from.x-l)) - r*to.b
+private data class RestPoint(val x:Double, val b:Int)
