@@ -3,8 +3,8 @@ import java.util.ArrayList
 fun sayHello(name:String) = "Hello e ${name}"
 
 fun main(args: Array<String>) {
-	var l = ArrayList<Int>()
-	l.add(11)
-	println(l.get(0))
-	println(sayHello("fei"))
+	var a = 10
+	var b = 20
+	a = b.also { b = a }
+	println("$a $b")
 }

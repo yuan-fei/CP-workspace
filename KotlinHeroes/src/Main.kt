@@ -87,7 +87,23 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
-
+val g = Array<MutableList<IntArray>>(6){ mutableListOf()}
 private fun main() {
-    val (n, k) = readlnInts()
+    val n = readlnInt()
+    val dict = mapOf('k' to 0, 'o' to 1, 't' to 2, 'l' to 3, 'i' to 4, 'n' to 5)
+    for (i in 1..n){
+        val s = readln()
+        g[dict[s[0]]!!].add(intArrayOf((dict[s.last()]!!+1)%6, i))
+    }
+    val ans = mutableListOf<Int>()
+    eulerTour(0, ans)
+    println(ans.reversed().joinToString(" "))
+}
+
+private fun eulerTour(u:Int, ans:MutableList<Int>){
+    while(g[u].isNotEmpty()){
+        val e = g[u].removeAt(g[u].size - 1)
+        eulerTour(e[0], ans)
+        ans.add(e[1])
+    }
 }

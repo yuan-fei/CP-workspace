@@ -1,11 +1,7 @@
-package practice
+package episode2
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
-
-import java.io.*
-import java.lang.Math.max
-import java.util.*
 
 private fun readln() = readLine()!!
 private fun readlnByte() = readln().toByte()
@@ -93,41 +89,11 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
+
 private fun main() {
     val n = readlnInt()
-    val visitors = mutableListOf<Visitor>()
-    for (i in 1..n) {
-        val (c, r) = readlnInts()
-        visitors.add(Visitor(c, r, i))
-    }
-    visitors.sortByDescending { it.p }
-    val k = readlnInt()
-    val r = readlnInts()
-    val tm = TreeMap<Int, Queue<Int>>()
-    for (i in 1..k) {
-        val q = tm.getOrDefault(r[i - 1], LinkedList())
-        q.offer(i)
-        tm[r[i - 1]] = q
-    }
-    var totalReq = 0
-    var totalPayment = 0
-    val ans = mutableListOf<IntArray>()
-    for (i in 1..n) {
-        val e = tm.ceilingEntry(visitors[i - 1].c)
-        e?.let{
-            totalPayment += visitors[i - 1].p
-            totalReq++
-            ans.add(intArrayOf(visitors[i - 1].i, it.value.poll()))
-            if (it.value.isEmpty()) {
-                tm.remove(it.key)
-            }
-        }
-    }
-    ans.sortBy { it[0] }
-    println("$totalReq $totalPayment")
-    for (a in ans) {
-        println("${a[0]} ${a[1]}")
-    }
+    val a = readlnLongs()
+    val max = a.mapIndexed{i, e-> longArrayOf(e,i*1L)}.maxWith(Comparator{a,b->if(a[0].compareTo(b[0])!=0) a[0].compareTo(b[0]) else a[1].compareTo(b[1])})
+    val ans = n * (max!![0] - 1) + max!![1] + 1
+    println(ans)
 }
-
-data class Visitor(val c: Int, val p: Int, val i: Int)

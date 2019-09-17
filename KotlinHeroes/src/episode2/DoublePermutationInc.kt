@@ -1,11 +1,7 @@
-package practice
+package episode2
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
-
-import java.io.*
-import java.lang.Math.max
-import java.util.*
 
 private fun readln() = readLine()!!
 private fun readlnByte() = readln().toByte()
@@ -93,41 +89,98 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
+
 private fun main() {
     val n = readlnInt()
-    val visitors = mutableListOf<Visitor>()
-    for (i in 1..n) {
-        val (c, r) = readlnInts()
-        visitors.add(Visitor(c, r, i))
+    val a = readlnInts()
+    val m = mutableMapOf<Int, Int>()
+    for (i in a){
+        m[i]= m.getOrElse(i, {0}) + 1
     }
-    visitors.sortByDescending { it.p }
-    val k = readlnInt()
-    val r = readlnInts()
-    val tm = TreeMap<Int, Queue<Int>>()
-    for (i in 1..k) {
-        val q = tm.getOrDefault(r[i - 1], LinkedList())
-        q.offer(i)
-        tm[r[i - 1]] = q
+    var ub = 1
+    while (ub <= n){
+        if(!m.containsKey(ub) || m[ub]!=2){
+            break;
+        }
+        ub++
     }
-    var totalReq = 0
-    var totalPayment = 0
-    val ans = mutableListOf<IntArray>()
-    for (i in 1..n) {
-        val e = tm.ceilingEntry(visitors[i - 1].c)
-        e?.let{
-            totalPayment += visitors[i - 1].p
-            totalReq++
-            ans.add(intArrayOf(visitors[i - 1].i, it.value.poll()))
-            if (it.value.isEmpty()) {
-                tm.remove(it.key)
+    val leftmost = IntArray(ub){-1}
+    val rightmost = IntArray(ub){-1}
+    for (i in 0 until n){
+        if(a[i] < ub){
+            if(leftmost[a[i]] == -1){
+                leftmost[a[i]] = i
+            }
+            else{
+                rightmost[a[i]] = i
             }
         }
     }
-    ans.sortBy { it[0] }
-    println("$totalReq $totalPayment")
-    for (a in ans) {
-        println("${a[0]} ${a[1]}")
+    val leftmostTree = build(0,n)
+    val rightmostTree = build(0,n)
+    var good = 1
+    while (good < ub){
+        inc(leftmostTree, leftmost[good])
+        inc(rightmostTree, rightmost[good])
+        val q1 = query(leftmostTree, 0, leftmost[good])
+        val q2 = query(rightmostTree, 0, rightmost[good])
+        if(q1 != q2){
+            break;
+        }
+        good++
+    }
+    val sb = StringBuilder()
+    for (i in 0 until n){
+        if(a[i] < good){
+            if(leftmost[a[i]] == i){
+                sb.append('R')
+            }
+            else{
+                sb.append('G')
+            }
+        }
+        else{
+            sb.append('B')
+        }
+    }
+    println(sb.toString())
+}
+
+private data class Node(var v: Int, val lb:Int, val ub:Int, var left: Node?, var right: Node?)
+
+private fun build(left:Int, right:Int):Node{
+    val n:Node = Node(0, left, right, null, null )
+    if(left < right){
+        n.left = build(left, (left+right)/2)
+        n.right = build((left+right)/2+1, right)
+        n.v = n.left!!.v + n.right!!.v
+    }
+
+    return n
+}
+
+private fun inc(n:Node, i:Int){
+    if(n.lb <= i && n.ub >= i){
+        if(n.lb == n.ub){
+            n.v += 1
+        }
+        else if(n.left != null && n.right != null){
+            inc(n.left!!, i)
+            inc(n.right!!, i)
+            n.v = n.left!!.v + n.right!!.v
+        }
     }
 }
 
-data class Visitor(val c: Int, val p: Int, val i: Int)
+private fun query(n:Node?, left:Int, right:Int):Int{
+    if(n == null){
+        return 0
+    }
+    if(n.lb > right || n.ub < left){
+        return 0
+    }
+    if(left <= n.lb && n.ub <= right){
+        return n.v
+    }
+    return query(n.left, left, right) + query(n.right, left, right)
+}
