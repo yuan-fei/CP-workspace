@@ -1,10 +1,12 @@
+package week3;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import mooc.EdxIO;
 
-public class Main {
+public class Inversion {
+
 	public static void main(String[] args) throws Exception {
 		// generateLookup();
 		solve();
@@ -76,4 +78,5 @@ public class Main {
 		}
 		return totalInversion;
 	}
+
 }

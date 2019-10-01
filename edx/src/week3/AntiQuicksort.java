@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.stream.IntStream;
 
@@ -19,7 +18,8 @@ public class AntiQuicksort {
 	}
 
 	private static void solve() throws IOException, FileNotFoundException {
-		// try (FastScanner in = new FastScanner(new File("input.txt")); PrintWriter out
+		// try (FastScanner in = new FastScanner(new File("input.txt"));
+		// PrintWriter out
 		// = new PrintWriter("output.txt")) {
 		// solve(in, out);
 		// }
@@ -39,46 +39,6 @@ public class AntiQuicksort {
 			sb.append((arr[i] + 1) + " ");
 		}
 		out.println(sb.toString());
-	}
-
-	public static int findKthLargestHelper(int[] arr, int start, int end, int k) {
-		int index = partition(arr, start, end);
-		if (index == start + k) {
-			return arr[index];
-		} else if (index < start + k) {
-			return findKthLargestHelper(arr, index + 1, end, k - (index - start + 1));
-		} else {
-			return findKthLargestHelper(arr, start, index - 1, k);
-		}
-	}
-
-	public static int findKthLargest(int[] arr, int start, int end, int k) {
-		int index = -1;
-		while (index == start + k) {
-			index = partition(arr, start, end);
-			if (index < start + k) {
-				return findKthLargestHelper(arr, index + 1, end, k - (index - start + 1));
-			} else {
-				return findKthLargestHelper(arr, start, index - 1, k);
-			}
-		}
-		return arr[index];
-	}
-
-	private static int partition(int[] arr, int start, int end) {
-		int j = start;
-		int mid = new Random().nextInt(end - start + 1) + start;
-		swap(arr, mid, end);
-		int pivot = arr[end];
-
-		for (int i = start; i < end; i++) {
-			if (arr[i] < pivot) {
-				swap(arr, i, j);
-				j++;
-			}
-		}
-		swap(arr, end, j);
-		return j;
 	}
 
 	private static void swap(int[] nums, int i, int j) {
