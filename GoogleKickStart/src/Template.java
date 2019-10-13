@@ -19,9 +19,9 @@ public class Template {
 		in.close();
 	}
 
-	static long mod = 1000000007;
+	private static long mod = 1000000007;
 
-	static long add(long a, long b) {
+	private static long add(long a, long b) {
 		long r = a + b;
 		if (r < 0) {
 			r += mod;
@@ -29,11 +29,11 @@ public class Template {
 		return r % mod;
 	}
 
-	static long mul(long a, long b) {
+	private static long mul(long a, long b) {
 		return (a * b) % mod;
 	}
 
-	static int gcd(int a, int b) {
+	private static int gcd(int a, int b) {
 		if (b == 0) {
 			return a;
 		} else {
@@ -41,7 +41,7 @@ public class Template {
 		}
 	}
 
-	static String str(int[] a) {
+	private static String str(int[] a) {
 		String[] str = new String[a.length];
 		for (int i = 0; i < a.length; i++) {
 			str[i] = a[i] + "";
@@ -49,7 +49,7 @@ public class Template {
 		return String.join(" ", str);
 	}
 
-	static int[] getIntArr(Scanner in, int size) {
+	private static int[] getIntArr(Scanner in, int size) {
 		int[] arr = new int[size];
 		for (int i = 0; i < size; i++) {
 			arr[i] = in.nextInt();
@@ -57,7 +57,7 @@ public class Template {
 		return arr;
 	}
 
-	static int[][] getIntArr(Scanner in, int row, int col) {
+	private static int[][] getIntArr(Scanner in, int row, int col) {
 		int[][] arr = new int[row][];
 		for (int i = 0; i < row; i++) {
 			arr[i] = getIntArr(in, col);
@@ -65,12 +65,12 @@ public class Template {
 		return arr;
 	}
 
-	static char[] getCharArr(Scanner in, int size) {
+	private static char[] getCharArr(Scanner in, int size) {
 		char[] arr = in.next().toCharArray();
 		return arr;
 	}
 
-	static String[] getStringArr(Scanner in, int size) {
+	private static String[] getStringArr(Scanner in, int size) {
 		String[] arr = new String[size];
 		for (int i = 0; i < size; i++) {
 			arr[i] = in.next();
@@ -78,7 +78,7 @@ public class Template {
 		return arr;
 	}
 
-	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
+	private static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
 		Map<Integer, List<Integer>> edges = new HashMap<>();
 		for (int i = 0; i < size; i++) {
 			int from = in.nextInt();

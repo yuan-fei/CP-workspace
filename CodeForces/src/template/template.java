@@ -146,4 +146,24 @@ public class template {
 		}
 		return edges;
 	}
+
+	static List<Integer>[] adj;
+	private static int[] from;
+	private static int[] to;
+
+	static void getGraph(Scanner in, int nV, int nE, boolean directed) {
+		adj = new List[nV];
+		from = new int[nE];
+		to = new int[nE];
+		for (int e = 0; e < nE; e++) {
+			int u = in.nextInt();
+			int v = in.nextInt();
+			adj[u].add(e);
+			if (!directed) {
+				adj[v].add(e);
+			}
+			from[e] = u;
+			to[e] = v;
+		}
+	}
 }
