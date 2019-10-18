@@ -1,16 +1,37 @@
-package mooc;
+package week7;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-//import java.nio.*;
-//import java.nio.channels.*;
 import java.util.InputMismatchException;
+
+public class ExpensiveTrees {
+
+	public static void main(String[] args) throws Exception {
+		// generate();
+		solve();
+	}
+
+	private static void solve() throws IOException, FileNotFoundException {
+		try (EdxIO io = EdxIO.create()) {
+			solve(io);
+		}
+	}
+
+	private static void solve(EdxIO io) {
+		long N = io.nextLong();
+		long k = N / 2;
+		io.println(BigInteger.valueOf(N - k).multiply(BigInteger.valueOf(k)).toString());
+	}
+
+}
 
 /**
  * This is a simple I/O library for JVM-based programming languages, such as
@@ -19,7 +40,7 @@ import java.util.InputMismatchException;
  *
  * @author Maxim Buzdalov
  */
-public class EdxIO implements Closeable {
+class EdxIO implements Closeable {
 	/**
 	 * Creates a default instance of EdxIO which reads input from "input.txt"
 	 * and writes output to "output.txt".

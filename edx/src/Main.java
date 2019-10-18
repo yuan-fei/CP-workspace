@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import mooc.EdxIO;
 
@@ -16,28 +17,19 @@ public class Main {
 	static int max = 0;
 
 	public static void main(String[] args) throws Exception {
-		// generate();
 		solve();
-	}
-
-	static void generate() {
-		try (EdxIO io = EdxIO.create()) {
-			N = 1000000;
-			io.println(N);
-			for (int i = 1; i < N; i++)
-				io.println(1 + " " + (i + 1));
-		}
 	}
 
 	private static void solve() throws IOException, FileNotFoundException {
 		try (EdxIO io = EdxIO.create()) {
 			N = io.nextInt();
 			adj = new List[N + 1];
-			parent = new int[N + 1];
 			nLeaves = new int[N + 1];
+			parent = new int[N + 1];
 			total = N;
-			for (int i = 0; i < adj.length; i++) {
+			for (int i = 0; i <= N; i++) {
 				adj[i] = new ArrayList<>();
+				nLeaves[i] = 0;
 			}
 			for (int i = 0; i < N - 1; i++) {
 				int u = io.nextInt();
@@ -57,6 +49,7 @@ public class Main {
 			// dfs(0, 1);
 			postOrder();
 			io.println(max);
+			// stacklessDFS();
 			// for (int i = 1; i <= N; i++) {
 			// minDiff = Math.min(minDiff, Math.abs(total - 2 * nLeaves[i]));
 			// }
@@ -76,6 +69,34 @@ public class Main {
 			nLeaves[r] = 1;
 		}
 	}
+
+	// private static void stacklessDFS() {
+	// Stack<int[]> s = new Stack<>();
+	// s.push(new int[] { 1, 0 });
+	// nLeaves[1] = 0;
+	// while (!s.isEmpty()) {
+	// int[] cur = s.peek();
+	// int r = cur[0];
+	// int p = cur[1];
+	// if (nLeaves[r] == 0) {
+	// boolean isLeaf = true;
+	// for (int c : adj[r]) {
+	// if (c != p) {
+	// s.push(new int[] { c, r });
+	// isLeaf = false;
+	// }
+	// }
+	// if (isLeaf) {
+	// nLeaves[r] = 1;
+	// nLeaves[p] += nLeaves[r];
+	// s.pop();
+	// }
+	// } else if (nLeaves[r] > 0) {
+	// nLeaves[p] += nLeaves[r];
+	// s.pop();
+	// }
+	// }
+	// }
 
 	static class MyStack {
 		int[][] arr;
@@ -106,13 +127,13 @@ public class Main {
 	}
 
 	private static void postOrder() {
-		MyStack s = new MyStack(N + 5);
+		Stack<int[]> s = new Stack<>();
 		int[] n = { 1, 0 };
 		int[] lastPopped = { -1, 0 };
 		int[] nextTopChild = new int[2];
 		while (n[0] != -1 || !s.isEmpty()) {
 			if (n[0] != -1) {
-				s.push(n[0], n[1]);
+				s.push(new int[] { n[0], n[1] });
 				int cur = n[0];
 				int par = parent[cur];
 				int first = -1;
