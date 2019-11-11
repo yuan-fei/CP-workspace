@@ -1,3 +1,4 @@
+package r2019G;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -6,55 +7,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class BookReading {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			long h = in.nextLong();
-			long[] a = getLongArr(in, n);
-			long[] b = getLongArr(in, n);
-			long ans = solve(n, h, a, b);
+			int m = in.nextInt();
+			int q = in.nextInt();
+			int[] p = getIntArr(in, m);
+			int[] r = getIntArr(in, q);
+			long ans = solve(n, m, q, p, r);
 			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 	}
 
-	private static long solve(int n, long h, long[] a, long[] b) {
-		int[] dp = new int[1 << n];
-		int[] pb = new int[1 << n];
-		for (int i = 0; i < (1 << n); i++) {
-			long sumA = 0;
-			for (int j = 0; j < n; j++) {
-				if ((i & (1 << j)) != 0) {
-					sumA += a[j];
-				}
-			}
-			if (sumA >= h) {
-				dp[i] = 1;
-			}
-		}
-
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < 1 << n; j++) {
-				if (((j >> i) & 1) != 0) {
-					dp[j ^ (1 << i)] += dp[j];
-				}
-			}
-		}
-
+	private static long solve(int n, int m, int q, int[] p, int[] r) {
+		int[] seen = new int[100005];
 		long cnt = 0;
-		for (int i = 0; i < (1 << n); i++) {
-			long sumB = 0;
-			for (int j = 0; j < n; j++) {
-				if ((i & (1 << j)) != 0) {
-					sumB += b[j];
-				}
-			}
-			if (sumB >= h) {
-				cnt += dp[(1 << n) - 1 - i];
-			}
+		for (int i = 0; i < q; i++) {
+			seen[r[i]]++;
+			cnt += n / r[i];
+		}
+
+		for (int i = 0; i < m; i++) {
+			cnt -= countSeenFactors(p[i], seen);
 		}
 		return cnt;
 	}

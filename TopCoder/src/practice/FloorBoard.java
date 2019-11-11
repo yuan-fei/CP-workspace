@@ -1,8 +1,9 @@
 package practice;
+
 import java.util.Arrays;
 
 /**
- * Built using CHelper plug-in Actual solution is at the top
+ * https://community.topcoder.com/stat?c=problem_statement&pm=8397
  */
 public class FloorBoard {
 	public static void main(String[] args) {
@@ -110,12 +111,14 @@ public class FloorBoard {
 				}
 				// System.out.print(curR + ", " + curC + ", 0 -> ");
 				// for (int mask = 0; mask < (1 << m); mask++) {
-				// System.out.print(Integer.toBinaryString(mask) + ": " + cur[0][mask] + ", ");
+				// System.out.print(Integer.toBinaryString(mask) + ": " +
+				// cur[0][mask] + ", ");
 				// }
 				// System.out.println();
 				// System.out.print(curR + ", " + curC + ", 1 -> ");
 				// for (int mask = 0; mask < (1 << m); mask++) {
-				// System.out.print(Integer.toBinaryString(mask) + ": " + cur[1][mask] + ", ");
+				// System.out.print(Integer.toBinaryString(mask) + ": " +
+				// cur[1][mask] + ", ");
 				// }
 				// System.out.println();
 			}

@@ -1,79 +1,95 @@
+package r2019G;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
-public class Solution {
+/** Greedy */
+public class TheEquation {
 	public static void main(String[] args) {
+		solve();
+		// generateMultiple(20);
+	}
+
+	static void generateMultiple(int n) {
+		System.out.println(n);
+		for (int i = 0; i < n; i++) {
+			generate();
+		}
+	}
+
+	static void generate() {
+		Random r = new Random();
+		long mod = 1000000000000000L;
+		mod = 1000;
+		int n = r.nextInt(10) + 1;
+		long m = Math.abs(r.nextLong() % mod);
+		System.out.println(n + " " + m);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			sb.append(Math.abs(r.nextLong() % mod));
+			sb.append(" ");
+		}
+		System.out.println(sb.toString());
+	}
+
+	private static void solve() {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			long h = in.nextLong();
+			long m = in.nextLong();
 			long[] a = getLongArr(in, n);
-			long[] b = getLongArr(in, n);
-			long ans = solve(n, h, a, b);
+			long ans = solve(n, m, a);
 			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 	}
 
-	private static long solve(int n, long h, long[] a, long[] b) {
-		int[] dp = new int[1 << n];
-		int[] pb = new int[1 << n];
-		for (int i = 0; i < (1 << n); i++) {
-			long sumA = 0;
-			for (int j = 0; j < n; j++) {
-				if ((i & (1 << j)) != 0) {
-					sumA += a[j];
-				}
-			}
-			if (sumA >= h) {
-				dp[i] = 1;
-			}
-		}
-
+	private static long solve(int n, long m, long[] a) {
+		int[] cnt = new int[64];
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < 1 << n; j++) {
-				if (((j >> i) & 1) != 0) {
-					dp[j ^ (1 << i)] += dp[j];
+			for (int b = 0; b < 50; b++) {
+				if ((a[i] & (1L << b)) != 0) {
+					cnt[b]++;
 				}
 			}
 		}
 
-		long cnt = 0;
-		for (int i = 0; i < (1 << n); i++) {
-			long sumB = 0;
-			for (int j = 0; j < n; j++) {
-				if ((i & (1 << j)) != 0) {
-					sumB += b[j];
+		long min = 0;
+		long k = 0;
+		for (int i = 0; i < 50; i++) {
+			if (cnt[i] >= n - cnt[i]) {
+				k |= 1L << i;
+			}
+			min += (1L << i) * Math.min(cnt[i], n - cnt[i]);
+		}
+		if (min > m) {
+			return -1;
+		}
+		for (int i = 50; i >= 0; i--) {
+			if (((k >> i) & 1) == 0) {
+				// try to set ith bit of k to 1
+				long more = min + (1L << i) * Math.abs(n - 2 * cnt[i]);
+				if (more <= m) {
+					min = more;
+					k |= 1L << i;
 				}
 			}
-			if (sumB >= h) {
-				cnt += dp[(1 << n) - 1 - i];
-			}
+
 		}
-		return cnt;
+		return k;
 	}
 
-	public static int countSeenFactors(int n, int[] seen) {
-		int cnt = 0;
-		for (int i = 1; i * i <= n; i++) {
-			if (n % i == 0) {
-				cnt += seen[i];
-				if (i != n / i) {
-					cnt += seen[n / i];
-				}
-			}
-		}
-		return cnt;
-	}
+	static long c = 0;
 
 	private static long dfs(int n, long m, int[] cnt, int i, long max) {
-		System.out.println(i + "," + max);
+		c++;
+		// System.out.println(i + "," + max);
 		if (i == 0) {
 			if (n - cnt[i] <= max) {
 				return 1;
