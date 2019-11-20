@@ -1,68 +1,41 @@
+package r2019H;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
-/**
- * 1. cnt[i]>20 then chop to 20 or 21
- * 
- * 2. DP on each (+/-) combination of a number
- * 
- * https://codeforces.com/blog/entry/71373
- * 
- */
-public class Solution {
+public class HIndex {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int[] cnt = getIntArr(in, 9);
-			boolean ans = solve(cnt);
-			System.out.println("Case #" + i + ": " + (ans ? "YES" : "NO"));
+			int n = in.nextInt();
+			int[] a = getIntArr(in, n);
+			int[] ans = solve(n, a);
+			System.out.println("Case #" + i + ": " + str(ans));
 		}
 		in.close();
 	}
 
-	private static boolean solve(int[] cnt) {
-		int sum = 0;
-		for (int i = 0; i < cnt.length; i++) {
-			if (cnt[i] > 20) {
-				cnt[i] = cnt[i] % 2 + 20;
+	private static int[] solve(int n, int[] a) {
+		int[] ans = new int[n];
+		PriorityQueue<Integer> q = new PriorityQueue<>();
+		int max = 0;
+		for (int i = 0; i < n; i++) {
+			q.offer(a[i]);
+			while (!q.isEmpty() && q.peek() < max + 1) {
+				q.poll();
 			}
-			sum += cnt[i];
-		}
-		boolean[][] dp = new boolean[505][11];
-		dp[0][0] = true;
-		for (int i = 0; i < 9; i++) {
-			boolean[][] newDp = new boolean[505][11];
-			// for (int j = 0; j < dp.length; j++) {
-			// newDp[j] = Arrays.copyOf(dp[j], dp[j].length);
-			// }
-			for (int curTaken = 0; curTaken <= cnt[i]; curTaken++) {
-				for (int prevTaken = 0; prevTaken + curTaken <= sum; prevTaken++) {
-					for (int mod = 0; mod < 11; mod++) {
-						int diff = (curTaken + 10 * (cnt[i] - curTaken)) * (i + 1);
-						newDp[prevTaken + curTaken][(mod + diff) % 11] |= dp[prevTaken][mod];
-					}
-				}
+			if (q.size() == max + 1) {
+				max = q.size();
 			}
-			dp = newDp;
+			ans[i] = max;
 		}
-
-		return dp[(sum + 1) / 2][0];
-	}
-
-	static void dfs(boolean[] visited, List<int[]>[] adj, int[] colorCount, int u, int color) {
-		visited[u] = true;
-		colorCount[color]++;
-		for (int[] v : adj[u]) {
-			if (!visited[v[0]]) {
-				dfs(visited, adj, colorCount, v[0], (color + v[1]) % 2);
-			}
-		}
+		return ans;
 	}
 
 	private static long mod = 1000000007;

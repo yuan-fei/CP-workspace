@@ -1,3 +1,4 @@
+package r2019H;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -7,52 +8,49 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * 1. cnt[i]>20 then chop to 20 or 21
- * 
- * 2. DP on each (+/-) combination of a number
+ * Graph 2-coloring: diagonal as vertex
  * 
  * https://codeforces.com/blog/entry/71373
- * 
  */
-public class Solution {
+public class DiagonalPuzzle {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int[] cnt = getIntArr(in, 9);
-			boolean ans = solve(cnt);
-			System.out.println("Case #" + i + ": " + (ans ? "YES" : "NO"));
+			int n = in.nextInt();
+			char[][] puzzle = new char[n][];
+			for (int j = 0; j < n; j++) {
+				puzzle[j] = getCharArr(in, n);
+			}
+			int ans = solve(n, puzzle);
+			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 	}
 
-	private static boolean solve(int[] cnt) {
-		int sum = 0;
-		for (int i = 0; i < cnt.length; i++) {
-			if (cnt[i] > 20) {
-				cnt[i] = cnt[i] % 2 + 20;
-			}
-			sum += cnt[i];
+	private static int solve(int n, char[][] puzzle) {
+		List<int[]>[] adj = new List[4 * n - 2];
+		for (int i = 0; i < adj.length; i++) {
+			adj[i] = new ArrayList<>();
 		}
-		boolean[][] dp = new boolean[505][11];
-		dp[0][0] = true;
-		for (int i = 0; i < 9; i++) {
-			boolean[][] newDp = new boolean[505][11];
-			// for (int j = 0; j < dp.length; j++) {
-			// newDp[j] = Arrays.copyOf(dp[j], dp[j].length);
-			// }
-			for (int curTaken = 0; curTaken <= cnt[i]; curTaken++) {
-				for (int prevTaken = 0; prevTaken + curTaken <= sum; prevTaken++) {
-					for (int mod = 0; mod < 11; mod++) {
-						int diff = (curTaken + 10 * (cnt[i] - curTaken)) * (i + 1);
-						newDp[prevTaken + curTaken][(mod + diff) % 11] |= dp[prevTaken][mod];
-					}
-				}
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				int u = j - i + n - 1;
+				int v = j + i + 2 * n - 1;
+				adj[u].add(new int[] { v, (puzzle[i][j] == '.') ? 1 : 0 });
+				adj[v].add(new int[] { u, (puzzle[i][j] == '.') ? 1 : 0 });
 			}
-			dp = newDp;
 		}
-
-		return dp[(sum + 1) / 2][0];
+		boolean[] visited = new boolean[4 * n - 2];
+		int min = 0;
+		for (int i = 0; i < adj.length; i++) {
+			if (!visited[i]) {
+				int[] colorCount = new int[2];
+				dfs(visited, adj, colorCount, i, 0);
+				min += Math.min(colorCount[0], colorCount[1]);
+			}
+		}
+		return min;
 	}
 
 	static void dfs(boolean[] visited, List<int[]>[] adj, int[] colorCount, int u, int color) {
