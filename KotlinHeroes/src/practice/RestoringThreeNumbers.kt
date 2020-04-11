@@ -1,6 +1,4 @@
-
-
-import java.util.*
+package practice
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -51,7 +49,7 @@ private fun isWhiteSpace(c: Char) = c in " \r\n\t"
 
 // JVM-only targeting code follows next
 
-// episode3.readString() via sequence is still slightly faster than Scanner
+// practice.readString() via sequence is still slightly faster than Scanner
 private fun readString() = generateSequence { System.`in`.read().toChar() }
     .dropWhile { isWhiteSpace(it) }.takeWhile { !isWhiteSpace(it) }.joinToString("")
 
@@ -91,36 +89,11 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
-private data class Interval(val start:Int, val end:Int)
-
 private fun main() {
-    val n = readlnInt()
-    for (i in 1..n){
-        var d = readlnInt()
-        var arr = readlnInts()
-        var minPositive = Int.MAX_VALUE
-        var maxNegative = Int.MIN_VALUE
-        var max = 0
-        var choose = BooleanArray(d){false}
-        for ((i , x) in arr.withIndex()){
-            if(x > 0){
-                max += x
-                minPositive = minPositive.coerceAtMost(x)
-                choose[i] = true
-            }
-            else if(x < 0){
-                maxNegative = maxNegative.coerceAtLeast(x)
-            }
-        }
-        if(minPositive + maxNegative >= 0){
-            println(max + maxNegative)
-        }
-        else{
-            println(max - minPositive)
-        }
-
-
+    val n = readlnInts()
+    val sorted = n.sortedDescending()
+    for (i in sorted.subList(1, 4)) {
+        println(sorted[0] - i)
     }
-
 }
 

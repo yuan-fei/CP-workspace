@@ -1,3 +1,5 @@
+package week7;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 

@@ -1,6 +1,6 @@
+package practice
 
-
-import java.util.*
+import kotlin.math.max
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -51,7 +51,7 @@ private fun isWhiteSpace(c: Char) = c in " \r\n\t"
 
 // JVM-only targeting code follows next
 
-// episode3.readString() via sequence is still slightly faster than Scanner
+// practice.readString() via sequence is still slightly faster than Scanner
 private fun readString() = generateSequence { System.`in`.read().toChar() }
     .dropWhile { isWhiteSpace(it) }.takeWhile { !isWhiteSpace(it) }.joinToString("")
 
@@ -91,36 +91,25 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
-private data class Interval(val start:Int, val end:Int)
-
 private fun main() {
-    val n = readlnInt()
-    for (i in 1..n){
-        var d = readlnInt()
-        var arr = readlnInts()
-        var minPositive = Int.MAX_VALUE
-        var maxNegative = Int.MIN_VALUE
-        var max = 0
-        var choose = BooleanArray(d){false}
-        for ((i , x) in arr.withIndex()){
-            if(x > 0){
-                max += x
-                minPositive = minPositive.coerceAtMost(x)
-                choose[i] = true
+    readlnInt()
+    val s = readln()
+    var total = 0
+    var cnt = 0;
+    for (i in s.indices){
+        if(i > 0 && s[i] != s[i - 1]){
+            if(s[i - 1] == 'x'){
+                total += max(cnt - 2, 0)
             }
-            else if(x < 0){
-                maxNegative = maxNegative.coerceAtLeast(x)
-            }
-        }
-        if(minPositive + maxNegative >= 0){
-            println(max + maxNegative)
+            cnt = 1
         }
         else{
-            println(max - minPositive)
+            cnt++
         }
-
-
     }
-
+    if(s.last() == 'x'){
+        total += max(cnt - 2, 0)
+    }
+    println(total)
 }
 

@@ -1,6 +1,7 @@
-
+package episode3
 
 import java.util.*
+import kotlin.math.max
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -51,7 +52,7 @@ private fun isWhiteSpace(c: Char) = c in " \r\n\t"
 
 // JVM-only targeting code follows next
 
-// episode3.readString() via sequence is still slightly faster than Scanner
+// readString() via sequence is still slightly faster than Scanner
 private fun readString() = generateSequence { System.`in`.read().toChar() }
     .dropWhile { isWhiteSpace(it) }.takeWhile { !isWhiteSpace(it) }.joinToString("")
 
@@ -97,30 +98,26 @@ private fun main() {
     val n = readlnInt()
     for (i in 1..n){
         var d = readlnInt()
-        var arr = readlnInts()
-        var minPositive = Int.MAX_VALUE
-        var maxNegative = Int.MIN_VALUE
-        var max = 0
-        var choose = BooleanArray(d){false}
-        for ((i , x) in arr.withIndex()){
-            if(x > 0){
-                max += x
-                minPositive = minPositive.coerceAtMost(x)
-                choose[i] = true
+        var tm = TreeMap<Int, Int>()
+        for(j in 1..d){
+            var (s, e) = readIntArray()
+            tm[s] = (tm[s] ?:0) + 1
+            tm[e + 1] = (tm[e + 1] ?:0) - 1
+        }
+        var cnt = 0
+        for (x in tm.keys){
+            cnt += tm[x]!!
+            if(cnt == 1){
+                println(x)
+                break;
             }
-            else if(x < 0){
-                maxNegative = maxNegative.coerceAtLeast(x)
-            }
         }
-        if(minPositive + maxNegative >= 0){
-            println(max + maxNegative)
+        if(cnt != 1){
+            println(-1)
         }
-        else{
-            println(max - minPositive)
-        }
-
 
     }
 
 }
+
 

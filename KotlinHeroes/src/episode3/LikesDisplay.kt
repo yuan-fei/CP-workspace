@@ -1,6 +1,4 @@
-
-
-import java.util.*
+package episode3
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -91,35 +89,25 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
-private data class Interval(val start:Int, val end:Int)
-
 private fun main() {
     val n = readlnInt()
     for (i in 1..n){
-        var d = readlnInt()
-        var arr = readlnInts()
-        var minPositive = Int.MAX_VALUE
-        var maxNegative = Int.MIN_VALUE
-        var max = 0
-        var choose = BooleanArray(d){false}
-        for ((i , x) in arr.withIndex()){
-            if(x > 0){
-                max += x
-                minPositive = minPositive.coerceAtMost(x)
-                choose[i] = true
+        var x = readlnLong()
+        if(x < 1000){
+            println(x)
+        }
+        else {
+            if(x < 1000000){
+                x += 500
             }
-            else if(x < 0){
-                maxNegative = maxNegative.coerceAtLeast(x)
+            if(x < 1000000){
+                println("${x / 1000}K")
+            }
+            else{
+                x += 500000
+                println("${x / 1000000}M")
             }
         }
-        if(minPositive + maxNegative >= 0){
-            println(max + maxNegative)
-        }
-        else{
-            println(max - minPositive)
-        }
-
-
     }
 
 }

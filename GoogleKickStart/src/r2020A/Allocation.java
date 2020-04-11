@@ -1,26 +1,54 @@
-package practice;
-
+package r2020A;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class TaskA {
+public class Allocation {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			int m = in.nextInt();
-			System.out.println();
+			int b = in.nextInt();
+			int[] a = getIntArr(in, n);
+			int ans = solve(a, b);
+			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 	}
 
-	static int gcd(int a, int b) {
+	private static int solve(int[] a, int b) {
+		// TODO Auto-generated method stub
+		Arrays.sort(a);
+		for (int i = 0; i < a.length; i++) {
+			b -= a[i];
+			if (b < 0) {
+				return i;
+			}
+		}
+		return a.length;
+	}
+
+	private static long mod = 1000000007;
+
+	private static long add(long a, long b) {
+		long r = a + b;
+		if (r < 0) {
+			r += mod;
+		}
+		return r % mod;
+	}
+
+	private static long mul(long a, long b) {
+		return (a * b) % mod;
+	}
+
+	private static int gcd(int a, int b) {
 		if (b == 0) {
 			return a;
 		} else {
@@ -28,15 +56,23 @@ public class TaskA {
 		}
 	}
 
-	static String str(int[] a) {
-		String[] str = new String[a.length];
+	private static String str(int[] a) {
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {
-			str[i] = a[i] + "";
+			sb.append(a[i] + " ");
 		}
-		return String.join(" ", str);
+		return sb.toString();
 	}
 
-	static int[] getIntArr(Scanner in, int size) {
+	private static long[] getLongArr(Scanner in, int size) {
+		long[] arr = new long[size];
+		for (int i = 0; i < size; i++) {
+			arr[i] = in.nextLong();
+		}
+		return arr;
+	}
+
+	private static int[] getIntArr(Scanner in, int size) {
 		int[] arr = new int[size];
 		for (int i = 0; i < size; i++) {
 			arr[i] = in.nextInt();
@@ -44,7 +80,7 @@ public class TaskA {
 		return arr;
 	}
 
-	static int[][] getIntArr(Scanner in, int row, int col) {
+	private static int[][] getIntArr(Scanner in, int row, int col) {
 		int[][] arr = new int[row][];
 		for (int i = 0; i < row; i++) {
 			arr[i] = getIntArr(in, col);
@@ -52,12 +88,12 @@ public class TaskA {
 		return arr;
 	}
 
-	static char[] getCharArr(Scanner in, int size) {
+	private static char[] getCharArr(Scanner in, int size) {
 		char[] arr = in.next().toCharArray();
 		return arr;
 	}
 
-	static String[] getStringArr(Scanner in, int size) {
+	private static String[] getStringArr(Scanner in, int size) {
 		String[] arr = new String[size];
 		for (int i = 0; i < size; i++) {
 			arr[i] = in.next();
@@ -65,7 +101,7 @@ public class TaskA {
 		return arr;
 	}
 
-	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
+	private static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
 		Map<Integer, List<Integer>> edges = new HashMap<>();
 		for (int i = 0; i < size; i++) {
 			int from = in.nextInt();

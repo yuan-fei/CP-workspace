@@ -1,3 +1,4 @@
+package r2020A;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -6,50 +7,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class Plates {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
 			int k = in.nextInt();
-			int[] a = getIntArr(in, n);
-			int ans = solve(n, k, a);
+			int p = in.nextInt();
+			int[][] a = getIntArr(in, n, k);
+			int ans = solve(n, k, p, a);
 			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 	}
 
-	private static int solve(int n, int k, int[] a) {
-		int[] diff = new int[n - 1];
-		for (int i = 0; i < n - 1; i++) {
-			diff[i] = a[i + 1] - a[i];
-		}
-		int low = 1;
-		int high = 1000000000;
-		while (low + 1 < high) {
-			int mid = low + (high - low) / 2;
-			if (feasible(diff, k, mid)) {
-				high = mid;
-			} else {
-				low = mid;
+	private static int solve(int n, int k, int p, int[][] a) {
+		int[][] dp = new int[n + 1][p + 1];
+		for (int i = 1; i <= n; i++) {
+			for (int j = 0; j <= Math.min(p, i * k); j++) {
+				int curPrefixSum = 0;
+				dp[i][j] = dp[i - 1][j];
+				for (int x = 1; x <= Math.min(k, j); x++) {
+					curPrefixSum += a[i - 1][x - 1];
+					dp[i][j] = Math.max(dp[i][j], dp[i - 1][j - x] + curPrefixSum);
+				}
 			}
 		}
-		if (feasible(diff, k, low)) {
-			return low;
-		} else {
-			return high;
-		}
-	}
-
-	private static boolean feasible(int[] diff, int k, int mid) {
-		for (int d : diff) {
-			k -= (d - 1) / mid;
-			if (k < 0) {
-				return false;
-			}
-		}
-		return true;
+		return dp[n][p];
 	}
 
 	private static long mod = 1000000007;
