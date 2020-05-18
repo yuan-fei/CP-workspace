@@ -1,3 +1,4 @@
+package y2020.r1c;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -6,17 +7,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
-public class Solution {
+public class OversizedPancakeChoppers {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -25,59 +24,45 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int u = in.nextInt();
-			long[] m = new long[10000];
-			String[] s = new String[10000];
-			for (int j = 0; j < 10000; j++) {
-				m[j] = in.nextLong();
-				s[j] = in.next();
-			}
-			String r = solve(u, m, s);
+			int n = in.nextInt();
+			int m = in.nextInt();
+			long[] a = getLongArr(in, n);
+			int r = solve(n, m, a);
 			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static String solve(int u, long[] m, String[] s) {
-		Set<Character> dic = new HashSet<>();
-		Set<Character> initialDic = new HashSet<>();
-		for (int i = 0; i < 10000; i++) {
-			for (char c : s[i].toCharArray()) {
-				dic.add(c);
+	private static int solve(int n, int m, long[] a) {
+		TreeMap<Long, Integer> map = new TreeMap<>();
+		for (long l : a) {
+			int cnt = map.getOrDefault(l, 0) + 1;
+			map.put(l, cnt);
+		}
+		if (m == 2) {
+			for (int v : map.values()) {
+				if (v > 1) {
+					return 0;
+				}
 			}
-			if (s[i].length() > 1) {
-				initialDic.add(s[i].charAt(0));
+			return 1;
+		} else if (m == 3) {
+			for (int v : map.values()) {
+				if (v >= 3) {
+					return 0;
+				}
 			}
-		}
-		Map<Character, Integer> min = new HashMap<>();
-		Map<Character, Integer> max = new HashMap<>();
-		char init = 'z';
-		for (char c : dic) {
-			max.put(c, 9);
-			if (initialDic.contains(c)) {
-				min.put(c, 1);
-			} else {
-				init = c;
+			for (long k : map.keySet()) {
+				if (map.get(k) == 2 && map.higherKey(k) != null) {
+					return 1;
+				}
+				if (map.containsKey(2 * k)) {
+					return 1;
+				}
 			}
+			return 2;
 		}
-		Map<Character, Integer> freq = new HashMap();
-		for (char c : dic) {
-			freq.put(c, 0);
-		}
-		for (int i = 0; i < 10000; i++) {
-			char c = s[i].charAt(0);
-			int f = freq.get(c) + 1;
-			freq.put(c, f);
-		}
-		dic.remove(init);
-		List<Character> l = new ArrayList<>(dic);
-		Collections.sort(l, (a, b) -> Integer.compare(freq.get(b), freq.get(a)));
-		l.add(0, init);
-		String res = "";
-		for (char c : l) {
-			res += c;
-		}
-		return res;
+		return 0;
 	}
 
 	private static void test() {

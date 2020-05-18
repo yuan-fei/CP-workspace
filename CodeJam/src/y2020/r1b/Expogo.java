@@ -1,3 +1,4 @@
+package y2020.r1b;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -6,78 +7,86 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class Expogo {
 	public static void main(String[] args) {
 		solve();
+		// System.out.println(solve(1 << 30, 1));
 	}
 
 	private static void solve() {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int u = in.nextInt();
-			long[] m = new long[10000];
-			String[] s = new String[10000];
-			for (int j = 0; j < 10000; j++) {
-				m[j] = in.nextLong();
-				s[j] = in.next();
-			}
-			String r = solve(u, m, s);
+			int x = in.nextInt();
+			int y = in.nextInt();
+			String r = solve(x, y);
 			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static String solve(int u, long[] m, String[] s) {
-		Set<Character> dic = new HashSet<>();
-		Set<Character> initialDic = new HashSet<>();
-		for (int i = 0; i < 10000; i++) {
-			for (char c : s[i].toCharArray()) {
-				dic.add(c);
-			}
-			if (s[i].length() > 1) {
-				initialDic.add(s[i].charAt(0));
-			}
+	private static String solve(int x, int y) {
+		Map<Integer, String> m = new HashMap<>();
+		if (x >= 0) {
+			m.put(1, "E");
+			m.put(-1, "W");
 		}
-		Map<Character, Integer> min = new HashMap<>();
-		Map<Character, Integer> max = new HashMap<>();
-		char init = 'z';
-		for (char c : dic) {
-			max.put(c, 9);
-			if (initialDic.contains(c)) {
-				min.put(c, 1);
+		if (x < 0) {
+			m.put(-1, "E");
+			m.put(1, "W");
+		}
+		if (y >= 0) {
+			m.put(2, "N");
+			m.put(-2, "S");
+		}
+		if (y < 0) {
+			m.put(-2, "N");
+			m.put(2, "S");
+		}
+		return solve(Math.abs(x), Math.abs(y), m);
+	}
+
+	private static String solve(long x, long y, Map<Integer, String> d) {
+		if (x % 2 == y % 2) {
+			return "IMPOSSIBLE";
+		}
+		StringBuilder sb = new StringBuilder();
+		long[] n = { x, y };
+		int[] assignment = new int[35];
+		int last = 0;
+		if (y % 2 == 1) {
+			last = 1;
+		}
+		for (int i = 0; (1L << i) <= Math.max(Long.highestOneBit(n[0]), Long.highestOneBit(n[1])); i++) {
+			long mask = 1L << i;
+			if ((n[0] & mask) != 0 && (n[1] & mask) == 0) {
+				last = 0;
+				assignment[i] = last + 1;
+			} else if ((n[1] & mask) != 0 && (n[0] & mask) == 0) {
+				last = 1;
+				assignment[i] = last + 1;
+			} else if ((n[1] & mask) == 0 && (n[0] & mask) == 0) {
+				assignment[i] = last + 1;
+				n[last] ^= mask;
+				assignment[i - 1] *= -1;
 			} else {
-				init = c;
+				n[last] += mask;
+				assignment[i - 1] *= -1;
+				last = 1 - last;
+				assignment[i] = last + 1;
 			}
 		}
-		Map<Character, Integer> freq = new HashMap();
-		for (char c : dic) {
-			freq.put(c, 0);
+		for (int i = 0; (1L << i) <= Math.max(Long.highestOneBit(n[0]), Long.highestOneBit(n[1])); i++) {
+			sb.append(d.get(assignment[i]));
 		}
-		for (int i = 0; i < 10000; i++) {
-			char c = s[i].charAt(0);
-			int f = freq.get(c) + 1;
-			freq.put(c, f);
-		}
-		dic.remove(init);
-		List<Character> l = new ArrayList<>(dic);
-		Collections.sort(l, (a, b) -> Integer.compare(freq.get(b), freq.get(a)));
-		l.add(0, init);
-		String res = "";
-		for (char c : l) {
-			res += c;
-		}
-		return res;
+		return sb.toString();
 	}
 
 	private static void test() {
@@ -121,10 +130,18 @@ public class Solution {
 		return String.join(" ", str);
 	}
 
-	static long[] getLongArr(Scanner in, int size) {
-		long[] arr = new long[size];
+	static int[] getIntArr(Scanner in, int size) {
+		int[] arr = new int[size];
 		for (int i = 0; i < size; i++) {
-			arr[i] = in.nextLong();
+			arr[i] = in.nextInt();
+		}
+		return arr;
+	}
+
+	static int[][] getIntArr(Scanner in, int row, int col) {
+		int[][] arr = new int[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = getIntArr(in, col);
 		}
 		return arr;
 	}

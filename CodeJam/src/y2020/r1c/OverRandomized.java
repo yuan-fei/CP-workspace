@@ -1,3 +1,4 @@
+package y2020.r1c;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -16,7 +17,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class OverRandomized {
 	public static void main(String[] args) {
 		solve();
 	}

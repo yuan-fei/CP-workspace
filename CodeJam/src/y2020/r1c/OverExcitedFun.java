@@ -1,3 +1,4 @@
+package y2020.r1c;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -6,17 +7,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class OverExcitedFun {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -25,59 +23,30 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int u = in.nextInt();
-			long[] m = new long[10000];
-			String[] s = new String[10000];
-			for (int j = 0; j < 10000; j++) {
-				m[j] = in.nextLong();
-				s[j] = in.next();
-			}
-			String r = solve(u, m, s);
-			System.out.println("Case #" + i + ": " + r);
+			int x = in.nextInt();
+			int y = in.nextInt();
+			String m = in.next();
+			int r = solve(x, y, m);
+			System.out.println("Case #" + i + ": " + ((r == -1) ? "IMPOSSIBLE" : r));
 		}
 		in.close();
 	}
 
-	private static String solve(int u, long[] m, String[] s) {
-		Set<Character> dic = new HashSet<>();
-		Set<Character> initialDic = new HashSet<>();
-		for (int i = 0; i < 10000; i++) {
-			for (char c : s[i].toCharArray()) {
-				dic.add(c);
-			}
-			if (s[i].length() > 1) {
-				initialDic.add(s[i].charAt(0));
-			}
-		}
-		Map<Character, Integer> min = new HashMap<>();
-		Map<Character, Integer> max = new HashMap<>();
-		char init = 'z';
-		for (char c : dic) {
-			max.put(c, 9);
-			if (initialDic.contains(c)) {
-				min.put(c, 1);
-			} else {
-				init = c;
+	private static int solve(int x, int y, String m) {
+		Map<Character, int[]> dir = new HashMap<>();
+		dir.put('E', new int[] { 1, 0 });
+		dir.put('W', new int[] { -1, 0 });
+		dir.put('N', new int[] { 0, 1 });
+		dir.put('S', new int[] { 0, -1 });
+		for (int i = 0; i < m.length(); i++) {
+			char c = m.charAt(i);
+			x += dir.get(c)[0];
+			y += dir.get(c)[1];
+			if (Math.abs(x) + Math.abs(y) <= i + 1) {
+				return i + 1;
 			}
 		}
-		Map<Character, Integer> freq = new HashMap();
-		for (char c : dic) {
-			freq.put(c, 0);
-		}
-		for (int i = 0; i < 10000; i++) {
-			char c = s[i].charAt(0);
-			int f = freq.get(c) + 1;
-			freq.put(c, f);
-		}
-		dic.remove(init);
-		List<Character> l = new ArrayList<>(dic);
-		Collections.sort(l, (a, b) -> Integer.compare(freq.get(b), freq.get(a)));
-		l.add(0, init);
-		String res = "";
-		for (char c : l) {
-			res += c;
-		}
-		return res;
+		return -1;
 	}
 
 	private static void test() {
