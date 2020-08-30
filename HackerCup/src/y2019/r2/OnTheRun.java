@@ -1,102 +1,43 @@
+package y2019.r2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Grading {
+public class OnTheRun {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
-				int h = in.nextInt();
-				int s = in.nextInt();
+				int n = in.nextInt();
+				int m = in.nextInt();
 				int k = in.nextInt();
-				String[] a = getStringArr(in, h);
-				int[] c = getIntArr(in, k);
-				int[] r = solve(h, s, k, a, c);
-				out.println("Case #" + i + ": " + str(r));
+				int[] x = getIntArr(in, 2);
+				int[][] a = getIntArr(in, k, 2);
+				boolean r = solve(n, m, k, x, a);
+				out.println("Case #" + i + ": " + (r ? "Y" : "N"));
 			}
 
 		}
 
 	}
 
-	private static int[] solve(int h, int s, int k, String[] a, int[] c) {
-		int[][] stacks = new int[s][h];
-		for (int i = 0; i < s; i++) {
-			for (int j = 0; j < h; j++) {
-				stacks[i][j] = a[j].charAt(i) - 'A';
+	private static boolean solve(int n, int m, int k, int[] x, int[][] a) {
+		if (k == 1) {
+			return false;
+		}
+		int odd = (x[0] + x[1]) % 2;
+		for (int[] p : a) {
+			if ((p[0] + p[1]) % 2 != odd) {
+				return false;
 			}
 		}
-		int[][][] dp = new int[s][2][];
-		int[] contetSwitch = new int[h + 1];
-		Arrays.fill(contetSwitch, Integer.MAX_VALUE);
-		for (int initialLetter = 0; initialLetter < 2; initialLetter++) {
-			for (int i = 0; i < s; i++) {
-				dp[i][initialLetter] = dpForStack(stacks[i], h, initialLetter);
-			}
-			for (int i = 0; i <= h; i++) {
-				int sum = 0;
-				for (int j = 0; j < s; j++) {
-					sum += dp[j][initialLetter][i];
-				}
-				contetSwitch[i] = Math.min(sum, contetSwitch[i]);
-			}
-		}
-		int[] total = new int[s * h + 1];
-		Arrays.fill(total, h);
-		for (int i = 0; i < contetSwitch.length; i++) {
-			total[contetSwitch[i]] = i;
-		}
-		for (int i = 1; i < total.length; i++) {
-			total[i] = Math.min(total[i], total[i - 1]);
-		}
-		int[] ans = new int[c.length];
-		for (int i = 0; i < c.length; i++) {
-			ans[i] = total[c[i]];
-		}
-		return ans;
-	}
-
-	static int[] dpForStack(int[] stack, int h, int initialLetter) {
-		int MAX = h + 5;
-		int[][][] dp = new int[h + 1][h + 2][2];
-		for (int i = 0; i < dp.length; i++) {
-			for (int c = 0; c < dp[i].length; c++) {
-				for (int last = 0; last < 2; last++) {
-					dp[i][c][last] = MAX;
-					if (i == 0 && last == initialLetter) {
-						dp[i][c][last] = 0;
-					}
-				}
-			}
-		}
-		for (int i = 0; i < h; i++) {
-			for (int c = 0; c <= h; c++) {
-				for (int last = 0; last < 2; last++) {
-					int cur = stack[i];
-					int d = dp[i][c][last];
-					if (cur == last) {
-						dp[i + 1][c][last] = Math.min(dp[i + 1][c][last], d); // grade
-					} else {
-						dp[i + 1][c + 1][1 - last] = Math.min(dp[i + 1][c + 1][1 - last], d); // grade
-					}
-					dp[i + 1][c][last] = Math.min(dp[i + 1][c][last], d + 1); // discard
-
-				}
-			}
-		}
-		int[] ans = new int[h + 1];
-		for (int i = 0; i <= h; i++) {
-			ans[i] = Math.min(dp[h][i][0], dp[h][i][1]);
-		}
-		return ans;
+		return true;
 	}
 
 	static long mod = 1000000007;

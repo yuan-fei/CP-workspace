@@ -1,89 +1,41 @@
+package r2020D;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
-
+public class RecordBreaker {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			int nq = in.nextInt();
-			int[] p = getIntArr(in, n - 1);
-			int[][] q = getIntArr(in, nq, 2);
-			int[] ans = solve(n, nq, p, q);
-			System.out.println("Case #" + i + ": " + str(ans));
+			int[] a = getIntArr(in, n);
+			long ans = solve(n, a);
+			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 
 	}
 
-	private static int[][] ancestors;
-	static int MAXLOG = 20;
-
-	private static int[] solve(int n, int nq, int[] p, int[][] q) {
-		int[] par = new int[2 * n];
-		Arrays.fill(par, -1);
-		for (int i = 0; i < n; i++) {
-			for (int l = 0; l < i; l++) {
-
-			}
-		}
-		buildSparseTable(2 * n, par);
-		return null;
-	}
-
-	int get(int left, int right) {
-		return 0;
-	}
-
-	private static void buildSparseTable(int n, int[] parent) {
-		ancestors = new int[n][MAXLOG];
-		for (int j = 0; j < n; j++) {
-			ancestors[j][0] = parent[j];
-		}
-		for (int i = 1; i < MAXLOG; i++) {
-			for (int j = 0; j < n; j++) {
-				int k = ancestors[j][i - 1];
-				if (k >= 0) {
-					ancestors[j][i] = ancestors[k][i - 1];
-				} else {
-					ancestors[j][i] = -1;
+	private static long solve(int n, int[] a) {
+		int max = -1;
+		int cnt = 0;
+		for (int i = 0; i < a.length - 1; i++) {
+			if (a[i] > max) {
+				if (a[i] > a[i + 1]) {
+					cnt++;
 				}
+				max = a[i];
 			}
 		}
-	}
-
-	private static int getKthAncestor(int node, int k) {
-		return getKthAncestor(node, k, 0);
-	}
-
-	private static int getKthAncestor(int node, int k, int b) {
-		if (b == 31 || node < 0) {
-			return node;
+		if (a[a.length - 1] > max) {
+			cnt++;
 		}
-		if (((k >> b) & 1) != 0) {
-			return getKthAncestor(ancestors[node][b], k, b + 1);
-		} else {
-			return getKthAncestor(node, k, b + 1);
-		}
-	}
-
-	private static int signum(int n) {
-		if (n == 0) {
-			return 0;
-		}
-		if (n > 0) {
-			return 1;
-		} else {
-			return -1;
-		}
+		return cnt;
 	}
 
 	private static long mod = 1000000007;

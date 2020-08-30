@@ -1,39 +1,86 @@
-package qualification;
+package y2020.r1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class LeapFrog1 {
+public class PerimetricChapter1 {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
-				char[] s = getCharArr(in);
-				boolean r = solve(s);
-				out.println("Case #" + i + ": " + (r ? "Y" : "N"));
+				int N = in.nextInt();
+				int K = in.nextInt();
+				int W = in.nextInt();
+				int[] L = new int[N];
+				int[] H = new int[N];
+				for (int j = 0; j < K; j++) {
+					L[j] = in.nextInt();
+				}
+				int[] Labcd = getIntArr(in, 4);
+				for (int j = 0; j < K; j++) {
+					H[j] = in.nextInt();
+				}
+				int[] Habcd = getIntArr(in, 4);
+				int r = solve(N, K, W, L, H, Labcd, Habcd);
+				out.println("Case #" + i + ": " + r);
 			}
 
 		}
 
 	}
 
-	private static boolean solve(char[] chars) {
-		int cntB = 0;
-		int cntEmpty = 0;
-		for (char c : chars) {
-			if (c == 'B') {
-				cntB++;
-			} else if (c == '.') {
-				cntEmpty++;
+	private static int solve(int n, int k, int w, int[] l, int[] h, int[] labcd, int[] habcd) {
+		fill(l, labcd, k, n);
+		fill(h, habcd, k, n);
+		long ans = 1;
+		Deque<Integer> q = new ArrayDeque<>(20);
+		long curPerimeter = 0;
+		for (int i = 0; i < n; i++) {
+			// eliminate rectangles not in question
+			while (!q.isEmpty() && l[q.peekFirst()] + w < l[i]) {
+				q.pollFirst();
 			}
+			int lastH = 0;
+			while (!q.isEmpty() && h[q.peekLast()] <= h[i]) {
+				lastH = h[q.pollLast()];
+			}
+			if (!q.isEmpty()) {
+				lastH = h[q.peekFirst()];
+			}
+			q.offer(i);
+			long deltaL = w;
+			if (i > 0) {
+				deltaL = Math.min(l[i] - l[i - 1], w);
+			}
+			long deltaH = Math.max(h[i] - lastH, 0);
+			long delta = (2 * (deltaL + deltaH)) % mod;
+			curPerimeter = (curPerimeter + delta) % mod;
+			// System.out.println(curPerimeter);
+			ans = (ans * curPerimeter) % mod;
 		}
-		return cntEmpty > 0 && cntB >= cntEmpty;
+		return (int) ans;
+	}
+
+	private static void fill(int[] a, int[] abcd, int k, int n) {
+		for (int i = k; i < n; i++) {
+			a[i] = compute(a[i - 2], a[i - 1], abcd);
+		}
+	}
+
+	private static int compute(long x1, long x2, int[] abcd) {
+		long ret = 0;
+		ret = (abcd[0] * x1) % abcd[3];
+		ret = (ret + (abcd[1] * x2) % abcd[3]) % abcd[3];
+		ret = (ret + abcd[2]) % abcd[3] + 1;
+		return (int) ret;
 	}
 
 	static long mod = 1000000007;
@@ -106,7 +153,7 @@ public class LeapFrog1 {
 		return arr;
 	}
 
-	static char[] getCharArr(Scanner in) {
+	static char[] getCharArr(Scanner in, int size) {
 		char[] arr = in.next().toCharArray();
 		return arr;
 	}
@@ -145,5 +192,13 @@ public class LeapFrog1 {
 
 		}
 		return edges;
+	}
+
+	static void set(int[][] a, int v) {
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = v;
+			}
+		}
 	}
 }

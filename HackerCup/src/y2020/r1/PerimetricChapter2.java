@@ -1,4 +1,4 @@
-package r1;
+package y2020.r1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,59 +7,91 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.TreeMap;
 
-public class GraphAsAService {
+public class PerimetricChapter2 {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
-				int n = in.nextInt();
-				int m = in.nextInt();
-				int[][] req = getIntArr(in, m, 3);
-				int[][] r = solve(n, m, req);
+				int N = in.nextInt();
+				int K = in.nextInt();
+				int[] L = new int[N];
+				int[] W = new int[N];
+				int[] H = new int[N];
+				for (int j = 0; j < K; j++) {
+					L[j] = in.nextInt();
+				}
+				int[] Labcd = getIntArr(in, 4);
+				for (int j = 0; j < K; j++) {
+					W[j] = in.nextInt();
+				}
+				int[] Wabcd = getIntArr(in, 4);
+				for (int j = 0; j < K; j++) {
+					H[j] = in.nextInt();
+				}
+				int[] Habcd = getIntArr(in, 4);
+				int r = solve(N, K, L, W, H, Labcd, Wabcd, Habcd);
+				out.println("Case #" + i + ": " + r);
+			}
 
-				if (r.length > 0) {
-					out.println("Case #" + i + ": " + r.length);
-					out.print(str(r));
+		}
+
+	}
+
+	private static int solve(int n, int k, int[] l, int[] w, int[] h, int[] labcd, int[] wabcd, int[] habcd) {
+		fill(l, labcd, k, n);
+		fill(w, wabcd, k, n);
+		fill(h, habcd, k, n);
+		long ans = 1;
+		long perimeter = 0;
+		TreeMap<Integer, Integer> tm = new TreeMap<>();
+		for (int i = 0; i < n; i++) {
+			int iStart = l[i];
+			int iEnd = l[i] + w[i];
+			int start = iStart;
+			int end = iEnd;
+			Entry<Integer, Integer> first = tm.floorEntry(iStart);
+			if (first != null && first.getValue() >= iStart) {
+				start = first.getKey();
+			}
+			int merged = 0;
+			long mergedWidth = 0;
+			Entry<Integer, Integer> cur = tm.ceilingEntry(start);
+			while (cur != null) {
+				if (cur.getKey() <= end) {
+					end = Math.max(end, cur.getValue());
+					merged++;
+					mergedWidth = add(mergedWidth, (cur.getValue() - cur.getKey()));
+					tm.remove(cur.getKey());
+					cur = tm.ceilingEntry(start);
 				} else {
-					out.println("Case #" + i + ": Impossible");
+					break;
 				}
 			}
-
+			tm.put(start, end);
+			perimeter = add(perimeter, mul(2, add(end - start, -mergedWidth)));
+			perimeter = add(perimeter, -mul(2 * (merged - 1), h[i]));
+			// System.out.println(perimeter);
+			ans = mul(ans, perimeter);
 		}
-
+		return (int) ans;
 	}
 
-	static int MAX = 1000001;
-
-	private static int[][] solve(int n, int m, int[][] req) {
-		int[][] mat = new int[n][n];
-		set(mat, MAX);
-		for (int[] r : req) {
-			mat[r[0] - 1][r[1] - 1] = r[2];
-			mat[r[1] - 1][r[0] - 1] = r[2];
+	private static void fill(int[] a, int[] abcd, int k, int n) {
+		for (int i = k; i < n; i++) {
+			a[i] = compute(a[i - 2], a[i - 1], abcd);
 		}
-		allPairShortestPath(mat);
-		for (int[] r : req) {
-			if (mat[r[0] - 1][r[1] - 1] != r[2] || mat[r[1] - 1][r[0] - 1] != r[2]) {
-				return new int[0][];
-			}
-		}
-		return req;
 	}
 
-	static void allPairShortestPath(int[][] mat) {
-		int n = mat.length;
-		for (int k = 0; k < n; k++) {
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (mat[i][j] > mat[i][k] + mat[k][j]) {
-						mat[i][j] = mat[i][k] + mat[k][j];
-					}
-				}
-			}
-		}
+	private static int compute(long x1, long x2, int[] abcd) {
+		long ret = 0;
+		ret = (abcd[0] * x1) % abcd[3];
+		ret = (ret + (abcd[1] * x2) % abcd[3]) % abcd[3];
+		ret = (ret + abcd[2]) % abcd[3] + 1;
+		return (int) ret;
 	}
 
 	static long mod = 1000000007;
@@ -92,10 +124,10 @@ public class GraphAsAService {
 		return sb.toString();
 	}
 
-	static String str(int[][] a) {
+	static String str(int[] a) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {
-			sb.append(a[i][0] + " " + a[i][1] + " " + a[i][2] + "\n");
+			sb.append(a[i] + " ");
 		}
 		return sb.toString();
 	}

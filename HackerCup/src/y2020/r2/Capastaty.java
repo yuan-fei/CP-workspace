@@ -1,4 +1,4 @@
-package r1;
+package y2020.r2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,16 +9,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class ClassTreasurer {
+public class Capastaty {
 	public static void main(String[] args) throws FileNotFoundException {
-		init();
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
-				int n = in.nextInt();
-				int k = in.nextInt();
-				String s = in.next();
-				long r = solve(n, k, s);
+				int N = in.nextInt();
+				int K = in.nextInt();
+				int[] S = new int[N];
+				int[] X = new int[N];
+				int[] Y = new int[N];
+				for (int j = 0; j < K; j++) {
+					S[j] = in.nextInt();
+				}
+				int[] Sabcd = getIntArr(in, 4);
+				for (int j = 0; j < K; j++) {
+					X[j] = in.nextInt();
+				}
+				int[] Xabcd = getIntArr(in, 4);
+				for (int j = 0; j < K; j++) {
+					Y[j] = in.nextInt();
+				}
+				int[] Yabcd = getIntArr(in, 4);
+				long r = solve(N, K, S, X, Y, Sabcd, Xabcd, Yabcd);
 				out.println("Case #" + i + ": " + r);
 			}
 
@@ -26,31 +39,55 @@ public class ClassTreasurer {
 
 	}
 
-	static int MAX = 1000001;
-	static long[] costs = new long[MAX];;
-
-	private static void init() {
-		costs[0] = 1;
-		for (int i = 1; i < costs.length; i++) {
-			costs[i] = mul(costs[i - 1], 2);
+	private static long solve(int n, int k, int[] s, int[] x, int[] y, int[] sabcd, int[] xabcd, int[] yabcd) {
+		fill(s, sabcd, k, n);
+		fill(x, xabcd, k, n);
+		fill(y, yabcd, k, n);
+		long totalMoveOut = 0;
+		long totalMoveIn = 0;
+		for (int i = 0; i < n; i++) {
+			if (s[i] < x[i]) {
+				totalMoveIn += x[i] - s[i];
+			}
+			if (s[i] > x[i] + y[i]) {
+				totalMoveOut += s[i] - x[i] - y[i];
+			}
+		}
+		if (totalMoveOut == totalMoveIn) {
+			return totalMoveOut;
+		} else if (totalMoveOut > totalMoveIn) {
+			totalMoveIn = 0;
+			for (int i = 0; i < n; i++) {
+				totalMoveIn += Math.max(x[i] + y[i] - s[i], 0);
+				if (totalMoveIn >= totalMoveOut) {
+					return totalMoveOut;
+				}
+			}
+			return -1;
+		} else {
+			totalMoveOut = 0;
+			for (int i = 0; i < n; i++) {
+				totalMoveOut += Math.max(s[i] - x[i], 0);
+				if (totalMoveOut >= totalMoveIn) {
+					return totalMoveIn;
+				}
+			}
+			return -1;
 		}
 	}
 
-	private static long solve(int n, int k, String s) {
-		long cost = 0;
-		int diff = 0;
-		for (int i = s.length() - 1; i >= 0; i--) {
-			if (s.charAt(i) == 'A') {
-				diff = Math.max(diff - 1, 0);
-			} else {
-				diff++;
-				if (diff > k) {
-					diff = Math.max(diff - 2, 0);
-					cost = add(cost, costs[i + 1]);
-				}
-			}
+	private static void fill(int[] a, int[] abcd, int k, int n) {
+		for (int i = k; i < n; i++) {
+			a[i] = compute(a[i - 2], a[i - 1], abcd);
 		}
-		return cost;
+	}
+
+	private static int compute(long x1, long x2, int[] abcd) {
+		long ret = 0;
+		ret = (abcd[0] * x1) % abcd[3];
+		ret = (ret + (abcd[1] * x2) % abcd[3]) % abcd[3];
+		ret = (ret + abcd[2]) % abcd[3];
+		return (int) ret;
 	}
 
 	static long mod = 1000000007;
@@ -162,5 +199,13 @@ public class ClassTreasurer {
 
 		}
 		return edges;
+	}
+
+	static void set(int[][] a, int v) {
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = v;
+			}
+		}
 	}
 }

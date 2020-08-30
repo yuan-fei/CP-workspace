@@ -1,24 +1,28 @@
+package r2020D;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class BeautyOfTree {
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			int nq = in.nextInt();
-			int[] p = getIntArr(in, n - 1);
-			int[][] q = getIntArr(in, nq, 2);
-			int[] ans = solve(n, nq, p, q);
-			System.out.println("Case #" + i + ": " + str(ans));
+			int a = in.nextInt();
+			int b = in.nextInt();
+			int[] p = new int[n];
+			p[0] = -1;
+			for (int j = 1; j < n; j++) {
+				p[j] = in.nextInt() - 1;
+			}
+			double ans = solve(n, a, b, p);
+			System.out.println("Case #" + i + ": " + ans);
 		}
 		in.close();
 
@@ -27,20 +31,27 @@ public class Solution {
 	private static int[][] ancestors;
 	static int MAXLOG = 20;
 
-	private static int[] solve(int n, int nq, int[] p, int[][] q) {
-		int[] par = new int[2 * n];
-		Arrays.fill(par, -1);
+	private static double solve(int n, int a, int b, int[] parent) {
+		buildSparseTable(n, parent);
+		int[] probA = getProb(n, a);
+		int[] probB = getProb(n, b);
+		double exp = 0;
 		for (int i = 0; i < n; i++) {
-			for (int l = 0; l < i; l++) {
-
-			}
+			exp += 1 - (1 - 1.0d * probA[i] / n) * (1 - 1.0d * probB[i] / n);
 		}
-		buildSparseTable(2 * n, par);
-		return null;
+		return exp;
 	}
 
-	int get(int left, int right) {
-		return 0;
+	private static int[] getProb(int n, int k) {
+		int[] prob = new int[n];
+		for (int i = n - 1; i >= 0; i--) {
+			prob[i] += 1;
+			int kth = getKthAncestor(i, k);
+			if (kth >= 0) {
+				prob[kth] += prob[i];
+			}
+		}
+		return prob;
 	}
 
 	private static void buildSparseTable(int n, int[] parent) {

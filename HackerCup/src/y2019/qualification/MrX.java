@@ -1,4 +1,4 @@
-package qualification;
+package y2019.qualification;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package r2;
+package y2019.qualification;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,17 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class OnTheRun {
+public class LeapFrog1 {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
-				int n = in.nextInt();
-				int m = in.nextInt();
-				int k = in.nextInt();
-				int[] x = getIntArr(in, 2);
-				int[][] a = getIntArr(in, k, 2);
-				boolean r = solve(n, m, k, x, a);
+				char[] s = getCharArr(in);
+				boolean r = solve(s);
 				out.println("Case #" + i + ": " + (r ? "Y" : "N"));
 			}
 
@@ -27,17 +23,17 @@ public class OnTheRun {
 
 	}
 
-	private static boolean solve(int n, int m, int k, int[] x, int[][] a) {
-		if (k == 1) {
-			return false;
-		}
-		int odd = (x[0] + x[1]) % 2;
-		for (int[] p : a) {
-			if ((p[0] + p[1]) % 2 != odd) {
-				return false;
+	private static boolean solve(char[] chars) {
+		int cntB = 0;
+		int cntEmpty = 0;
+		for (char c : chars) {
+			if (c == 'B') {
+				cntB++;
+			} else if (c == '.') {
+				cntEmpty++;
 			}
 		}
-		return true;
+		return cntEmpty > 0 && cntB >= cntEmpty;
 	}
 
 	static long mod = 1000000007;
@@ -110,7 +106,7 @@ public class OnTheRun {
 		return arr;
 	}
 
-	static char[] getCharArr(Scanner in, int size) {
+	static char[] getCharArr(Scanner in) {
 		char[] arr = in.next().toCharArray();
 		return arr;
 	}
@@ -149,13 +145,5 @@ public class OnTheRun {
 
 		}
 		return edges;
-	}
-
-	static void set(int[][] a, int v) {
-		for (int i = 0; i < a.length; i++) {
-			for (int j = 0; j < a[i].length; j++) {
-				a[i][j] = v;
-			}
-		}
 	}
 }
