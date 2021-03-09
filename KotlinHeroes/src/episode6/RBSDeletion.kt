@@ -1,4 +1,4 @@
-
+package episode6
 import java.util.*
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html

@@ -1,3 +1,4 @@
+package episode6
 
 import java.util.*
 
@@ -95,25 +96,15 @@ private data class Interval(val start:Int, val end:Int)
 private fun main() {
     val n = readlnInt()
     for (i in 1..n){
-        var (n, k) = readlnInts()
-        val s = readln()
-        var leftPCnt = 0
-        var curTreeCnt = 0
-        val l1 = mutableListOf<Int>()
-        for( c in s){
-            if(c == '('){
-                leftPCnt++
-            }
-            else{
-                leftPCnt--
-                curTreeCnt++
-                if (leftPCnt == 0){
-                    l1.add(curTreeCnt)
-                    curTreeCnt = 0
-                }
-            }
+        var (x, y) = readlnInts()
+        var d = y / x
+        val r = y % x
+        var cnt = r
+        while(d != 0){
+            cnt += d % 10
+            d /= 10
         }
-        println(minOf(l1.sum() , k + l1.size))
+        println(cnt)
     }
 
 }
