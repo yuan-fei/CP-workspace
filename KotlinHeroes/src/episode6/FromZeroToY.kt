@@ -91,8 +91,6 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
-private data class Interval(val start:Int, val end:Int)
-
 private fun main() {
     val n = readlnInt()
     for (i in 1..n){

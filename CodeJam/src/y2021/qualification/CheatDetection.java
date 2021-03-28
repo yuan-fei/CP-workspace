@@ -1,4 +1,4 @@
-
+package y2021.qualification;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -15,7 +15,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class CheatDetection {
 	public static void main(String[] args) {
 		solve();
 		// testOnce();
@@ -40,7 +40,7 @@ public class Solution {
 		// int cnt2 = 0;
 		Random r = new Random();
 		for (int i = 0; i < 100; i++) {
-			int x = r.nextInt(100);
+			int x = 0;
 			String[] testcase = generateCase(x);
 			// System.out.println("###");
 			int[] res = solve1(10, testcase);
@@ -59,7 +59,7 @@ public class Solution {
 			// }
 			// System.out.println(res);
 		}
-		// System.out.println(Arrays.toString(cnt));
+		System.out.println(Arrays.toString(cnt));
 		return cnt;
 	}
 
@@ -112,7 +112,7 @@ public class Solution {
 			problems[i][1] = getProblemLevel(scores, i);
 		}
 
-		int[][] players = new int[100][5];
+		int[][] players = new int[100][4];
 		int diff = 0;
 		int maxAccuracy = 0;
 		int ans = 0;
@@ -138,8 +138,7 @@ public class Solution {
 		}
 		int[] t = players[0];
 		Arrays.sort(problems, (a, b) -> -Integer.compare(a[1], b[1]));
-		fillPlayerRank(players, problems, scores);
-		Arrays.sort(players, (a, b) -> -Integer.compare(a[4], b[4]));
+		Arrays.sort(players, (a, b) -> -Integer.compare(a[1], b[1]));
 		fillDiff(players, problems, scores);
 		// System.out.println(Arrays.toString(t));
 		// int[][] highPlayers = new int[cnt][];
@@ -155,18 +154,6 @@ public class Solution {
 		// return playerHighAccuracy[0][0];
 		// head(players, 5);
 		return new int[] { players[0][0], ans };
-	}
-
-	private static void fillPlayerRank(int[][] players, int[][] problems, String[] score) {
-		int n = players.length;
-		int c = 1000;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < c; j++) {
-				if (score[players[i][0] - 1].charAt(problems[10000 - j - 1][0] - 1) == '1') {
-					players[i][4] += 1;
-				}
-			}
-		}
 	}
 
 	private static int getPlayerLevelUb(String[] scores, int[][] problems, int k) {
@@ -198,7 +185,7 @@ public class Solution {
 
 	private static void fillDiff(int[][] players, int[][] problems, String[] score) {
 		int n = players.length;
-		int c = 1000;
+		int c = 500;
 		for (int i = 0; i < n; i++) {
 			int df = 0;
 			int cnt = 0;
@@ -206,10 +193,9 @@ public class Solution {
 				if (i + d >= 0 && i + d < n) {
 					cnt++;
 					for (int j = 0; j < c; j++) {
-						if (score[players[i][0] - 1].charAt(problems[j][0] - 1) == '1'
-								&& score[players[i][0] - 1].charAt(problems[j][0] - 1) != score[players[i + d][0] - 1]
-										.charAt(problems[j][0] - 1)) {
-							df += 1;
+						if (score[players[i][0] - 1].charAt(problems[j][0] - 1) == '1' && score[players[i][0] - 1]
+								.charAt(problems[j][0] - 1) != score[players[i + d][0] - 1].charAt(j)) {
+							df++;
 						}
 					}
 				}
