@@ -1,3 +1,4 @@
+package y2021.r1a;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -9,11 +10,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class PrimeTime {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -33,53 +35,46 @@ public class Solution {
 	static long[][] pp;
 
 	private static long solve(int n, long[][] p) {
+		pp = p;
 		long sum = 0;
-		long[] pCnt = new long[500];
 		for (long[] x : p) {
 			sum += x[0] * x[1];
-			pCnt[(int) x[0]] += x[1];
 		}
+		return bfs(sum);
+	}
 
-		long MAX_MULTIPLIER_CNT = (long) (Math.log(sum) / Math.log(2)) + 1;
-		long MAX_PRODUCT = MAX_MULTIPLIER_CNT * 499;
-		for (long i = p[0][0]; i < Math.min(MAX_PRODUCT, sum); i++) {
-			Map<Integer, Integer> factors = factorize(sum - i);
-			if (factors.isEmpty()) {
-				continue;
-			}
-			long pSum = 0;
-			boolean complete = true;
-			for (int k : factors.keySet()) {
-				if (factors.get(k) > pCnt[k]) {
-					complete = false;
-					break;
-				}
-				pSum += k * factors.get(k);
-			}
-			if (complete && pSum == i) {
-				return sum - i;
-			}
-		}
+	private int dfs(int i, int c, int cur, long threshold) {
 		return 0;
 	}
 
-	private static Map<Integer, Integer> factorize(long x) {
-		int[] primes = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
-				101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
-				211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331,
-				337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457,
-				461, 463, 467, 479, 487, 491, 499 };
-		Map<Integer, Integer> m = new HashMap<>();
-		for (int i = 0; i < primes.length; i++) {
-			while (x % primes[i] == 0) {
-				x /= primes[i];
-				m.put(primes[i], m.getOrDefault(primes[i], 0) + 1);
+	private static long bfs(long sum) {
+		PriorityQueue<long[]> q = new PriorityQueue<>((a, b) -> Long.compare(a[1], b[1]));
+		for (int i = 0; i < pp.length; i++) {
+			long[] p = pp[i];
+			q.offer(new long[] { p[0], p[0], i, p[1] - 1 });
+		}
+
+		while (!q.isEmpty()) {
+			long[] cur = q.poll();
+			// System.out.println(Arrays.toString(cur));
+			if (cur[0] == sum - cur[1]) {
+				return cur[0];
+			} else {
+				if (cur[0] < sum - cur[1]) {
+					int curId = (int) cur[2];
+					if (cur[3] != 0) {
+						q.offer(new long[] { cur[0] * pp[curId][0], cur[1] + pp[curId][0], curId, cur[3] - 1 });
+					}
+					while (curId < pp.length - 1) {
+
+						q.offer(new long[] { cur[0] * pp[curId + 1][0], cur[1] + pp[curId + 1][0], curId + 1,
+								pp[curId + 1][1] - 1 });
+						curId++;
+					}
+				}
 			}
 		}
-		if (x != 1) {
-			return new HashMap<>();
-		}
-		return m;
+		return 0;
 	}
 
 	private static void test() {
@@ -134,7 +129,7 @@ public class Solution {
 	static long[] getLongArr(Scanner in, int size) {
 		long[] arr = new long[size];
 		for (int i = 0; i < size; i++) {
-			arr[i] = in.nextLong();
+			arr[i] = in.nextInt();
 		}
 		return arr;
 	}

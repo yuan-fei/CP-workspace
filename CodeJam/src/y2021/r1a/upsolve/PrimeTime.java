@@ -1,3 +1,4 @@
+package y2021.r1a.upsolve;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -13,7 +14,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class PrimeTime {
 	public static void main(String[] args) {
 		solve();
 	}

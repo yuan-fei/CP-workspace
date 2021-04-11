@@ -120,6 +120,20 @@ public class Template {
 		return edges;
 	}
 
+	static void swap(int[] a, int i, int j) {
+		int t = a[i];
+		a[i] = a[j];
+		a[j] = t;
+	}
+
+	static void setIntArr(int[][] a, int v) {
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = v;
+			}
+		}
+	}
+
 	static class FastScanner implements Closeable {
 		BufferedReader br;
 		StringTokenizer st;

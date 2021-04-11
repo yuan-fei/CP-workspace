@@ -1,3 +1,5 @@
+package y2021.r1a;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -13,7 +15,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class AppendSort {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -23,63 +25,59 @@ public class Solution {
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			long[][] p = getLongArr(in, n, 2);
-			long r = solve(n, p);
+			long[] x = getLongArr(in, n);
+			int r = solve(n, x);
 			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	static long[][] pp;
-
-	private static long solve(int n, long[][] p) {
-		long sum = 0;
-		long[] pCnt = new long[500];
-		for (long[] x : p) {
-			sum += x[0] * x[1];
-			pCnt[(int) x[0]] += x[1];
+	private static int solve(int n, long[] x) {
+		String last = "" + x[0];
+		int ans = 0;
+		for (int i = 1; i < x.length; i++) {
+			String y = "" + x[i];
+			String cur = getNext(last, y);
+			System.out.println(cur);
+			ans += cur.length() - y.length();
+			last = cur;
 		}
-
-		long MAX_MULTIPLIER_CNT = (long) (Math.log(sum) / Math.log(2)) + 1;
-		long MAX_PRODUCT = MAX_MULTIPLIER_CNT * 499;
-		for (long i = p[0][0]; i < Math.min(MAX_PRODUCT, sum); i++) {
-			Map<Integer, Integer> factors = factorize(sum - i);
-			if (factors.isEmpty()) {
-				continue;
-			}
-			long pSum = 0;
-			boolean complete = true;
-			for (int k : factors.keySet()) {
-				if (factors.get(k) > pCnt[k]) {
-					complete = false;
-					break;
-				}
-				pSum += k * factors.get(k);
-			}
-			if (complete && pSum == i) {
-				return sum - i;
-			}
-		}
-		return 0;
+		return ans;
 	}
 
-	private static Map<Integer, Integer> factorize(long x) {
-		int[] primes = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
-				101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
-				211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331,
-				337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457,
-				461, 463, 467, 479, 487, 491, 499 };
-		Map<Integer, Integer> m = new HashMap<>();
-		for (int i = 0; i < primes.length; i++) {
-			while (x % primes[i] == 0) {
-				x /= primes[i];
-				m.put(primes[i], m.getOrDefault(primes[i], 0) + 1);
+	private static String getNext(String nn, String mm) {
+		if (mm.length() > nn.length()) {
+			return mm;
+		} else {
+			for (int i = 0; i < mm.length(); i++) {
+				if (nn.charAt(i) != mm.charAt(i)) {
+					if (nn.charAt(i) < mm.charAt(i)) {
+						return mm + zero(nn.length() - mm.length());
+					} else {
+						return mm + zero(nn.length() - mm.length() + 1);
+					}
+				}
+			}
+			if (nn.length() == mm.length()) {
+				return mm + zero(1);
+			} else {
+				String ns = nn.substring(mm.length());
+				String ss = "" + (Long.parseLong(ns) + 1);
+				ss = zero(ns.length() - ss.length()) + ss;
+				return mm + ss;
 			}
 		}
-		if (x != 1) {
-			return new HashMap<>();
+	}
+
+	static String zero(int n) {
+		if (n <= 0) {
+			return "";
 		}
-		return m;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			sb.append('0');
+		}
+		return sb.toString();
 	}
 
 	private static void test() {
@@ -134,15 +132,15 @@ public class Solution {
 	static long[] getLongArr(Scanner in, int size) {
 		long[] arr = new long[size];
 		for (int i = 0; i < size; i++) {
-			arr[i] = in.nextLong();
+			arr[i] = in.nextInt();
 		}
 		return arr;
 	}
 
-	static long[][] getLongArr(Scanner in, int row, int col) {
-		long[][] arr = new long[row][];
+	static int[][] getIntArr(Scanner in, int row, int col) {
+		int[][] arr = new int[row][];
 		for (int i = 0; i < row; i++) {
-			arr[i] = getLongArr(in, col);
+			arr[i] = getIntArr(in, col);
 		}
 		return arr;
 	}
