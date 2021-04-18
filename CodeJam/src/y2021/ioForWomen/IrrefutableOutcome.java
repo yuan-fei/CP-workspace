@@ -1,3 +1,4 @@
+package y2021.ioForWomen;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -8,16 +9,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class IrrefutableOutcome {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -26,47 +24,58 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int m = in.nextInt();
-			int n = in.nextInt();
-			String[] s = getStringArr(in, m + n);
-			int[] r = solve(m, n, s);
-			System.out.println("Case #" + i + ": " + str(r));
+			String s = in.next();
+			int[] r = solve(s);
+			System.out.println("Case #" + i + ": " + (r[0] == 0 ? "I" : "O") + " " + r[1]);
 		}
 		in.close();
 	}
 
-	static int[] states = new int[1 << 25];
+	private static int[] solve(String ss) {
+		int[] ans = new int[2];
+		s = ss;
+		int n = s.length();
+		cache = new int[n][n];
+		for (int i = 0; i < cache.length; i++) {
+			Arrays.fill(cache[i], Integer.MIN_VALUE);
+		}
 
-	private static int[] solve(int m, int n, String[] s) {
-		int MAX = 100;
-		Arrays.fill(states, MAX);
-		Queue<Integer> q = new LinkedList<>();
-		int initial = toState(s);
-		q.offer(initial);
-		states[initial] = 0;
-		int steps = 0;
-		while (!q.isEmpty()) {
-			for (int x = q.size(); x > 0; x--) {
-				int cur = q.poll();
+		ans[1] = rec(0, 0, n - 1);
+		if (ans[1] < 0) {
+			ans[0] = 1;
+			ans[1] = -ans[1];
+		}
+		// ans[1]++;
+		return ans;
+	}
 
+	static String s;
+	static char[] p = { 'I', 'O' };
+	static int[][] cache;
+
+	static int rec(int cur, int start, int end) {
+		if (cache[start][end] == Integer.MIN_VALUE) {
+			if (start == end) {
+				cache[start][end] = (s.charAt(start) == p[cur]) ? 1 : -2;
+			} else {
+				if ((s.charAt(start) != p[cur] && s.charAt(end) != p[cur])) {
+					cache[start][end] = -(end - start + 1) - 1;
+				} else {
+					if (s.charAt(start) == p[cur]) {
+						int r = rec(1 - cur, start + 1, end);
+						cache[start][end] = Math.max(-r, cache[start][end]);
+					}
+					if (s.charAt(end) == p[cur]) {
+						int r = rec(1 - cur, start, end - 1);
+						cache[start][end] = Math.max(-r, cache[start][end]);
+					}
+				}
 			}
 		}
-		return null;
-	}
 
-	void rec(int m, int n, int s, Set<Integer> mm, List<Integer> ss) {
-	}
-
-	static int toState(String[] s) {
-		return -1;
-	}
-
-	static boolean getState(int x, int i, int j) {
-		return false;
-	}
-
-	static int setState(int x, int i, int j) {
-		return 0;
+		// System.out.println(Arrays.asList(cur, start, end,
+		// cache[start][end]));
+		return cache[start][end];
 	}
 
 	static int sign(int x) {

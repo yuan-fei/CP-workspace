@@ -1,3 +1,4 @@
+package y2021.ioForWomen;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -6,18 +7,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class ImpartialOfferings {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -26,57 +23,28 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int m = in.nextInt();
 			int n = in.nextInt();
-			String[] s = getStringArr(in, m + n);
-			int[] r = solve(m, n, s);
-			System.out.println("Case #" + i + ": " + str(r));
+			int[] s = getIntArr(in, n);
+			int r = solve(s);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	static int[] states = new int[1 << 25];
-
-	private static int[] solve(int m, int n, String[] s) {
-		int MAX = 100;
-		Arrays.fill(states, MAX);
-		Queue<Integer> q = new LinkedList<>();
-		int initial = toState(s);
-		q.offer(initial);
-		states[initial] = 0;
-		int steps = 0;
-		while (!q.isEmpty()) {
-			for (int x = q.size(); x > 0; x--) {
-				int cur = q.poll();
-
+	private static int solve(int[] s) {
+		int[] cnt = new int[105];
+		for (int x : s) {
+			cnt[x]++;
+		}
+		int c = 1;
+		int ans = 0;
+		for (int x : cnt) {
+			if (x != 0) {
+				ans += x * c;
+				c++;
 			}
 		}
-		return null;
-	}
-
-	void rec(int m, int n, int s, Set<Integer> mm, List<Integer> ss) {
-	}
-
-	static int toState(String[] s) {
-		return -1;
-	}
-
-	static boolean getState(int x, int i, int j) {
-		return false;
-	}
-
-	static int setState(int x, int i, int j) {
-		return 0;
-	}
-
-	static int sign(int x) {
-		if (x > 0) {
-			return 1;
-		}
-		if (x < 0) {
-			return -1;
-		}
-		return 0;
+		return ans;
 	}
 
 	private static void test() {

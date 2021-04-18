@@ -1,3 +1,4 @@
+package y2021.ioForWomen;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -6,18 +7,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class InconstantOffering {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -26,57 +23,38 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int m = in.nextInt();
 			int n = in.nextInt();
-			String[] s = getStringArr(in, m + n);
-			int[] r = solve(m, n, s);
-			System.out.println("Case #" + i + ": " + str(r));
+			int[] s = getIntArr(in, n);
+			String r = solve(s);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	static int[] states = new int[1 << 25];
-
-	private static int[] solve(int m, int n, String[] s) {
-		int MAX = 100;
-		Arrays.fill(states, MAX);
-		Queue<Integer> q = new LinkedList<>();
-		int initial = toState(s);
-		q.offer(initial);
-		states[initial] = 0;
-		int steps = 0;
-		while (!q.isEmpty()) {
-			for (int x = q.size(); x > 0; x--) {
-				int cur = q.poll();
-
+	private static String solve(int[] s) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('A');
+		int last = 0;
+		for (int i = 0; i < s.length; i++) {
+			if (i % 2 == 0) {
+				int max = s[i];
+				if (i + 1 < s.length) {
+					max = Math.max(s[i], s[i + 1]);
+				}
+				for (int j = 1; j <= s[i] - 1; j++) {
+					sb.append((char) ('A' + j));
+				}
+				sb.append((char) ('A' + max));
+				last = max;
+			} else {
+				int min = Math.min(last, s[i] - 1);
+				for (int j = min; j >= 0; j--) {
+					sb.append((char) ('A' + j));
+				}
+				last = 0;
 			}
 		}
-		return null;
-	}
-
-	void rec(int m, int n, int s, Set<Integer> mm, List<Integer> ss) {
-	}
-
-	static int toState(String[] s) {
-		return -1;
-	}
-
-	static boolean getState(int x, int i, int j) {
-		return false;
-	}
-
-	static int setState(int x, int i, int j) {
-		return 0;
-	}
-
-	static int sign(int x) {
-		if (x > 0) {
-			return 1;
-		}
-		if (x < 0) {
-			return -1;
-		}
-		return 0;
+		return sb.toString();
 	}
 
 	private static void test() {
