@@ -1,9 +1,4 @@
 import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
 public class Template {
 	public static void main(String[] args) {
@@ -63,12 +57,20 @@ public class Template {
 		}
 	}
 
-	static String str(int[] a) {
-		String[] str = new String[a.length];
-		for (int i = 0; i < a.length; i++) {
-			str[i] = a[i] + "";
+	static String str(List<Integer> a) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < a.size(); i++) {
+			sb.append(a.get(i) + " ");
 		}
-		return String.join(" ", str);
+		return sb.toString();
+	}
+
+	static String str(int[] a) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < a.length; i++) {
+			sb.append(a[i] + " ");
+		}
+		return sb.toString();
 	}
 
 	static int[] getIntArr(Scanner in, int size) {
@@ -87,8 +89,32 @@ public class Template {
 		return arr;
 	}
 
+	static long[] getLongArr(Scanner in, int size) {
+		long[] arr = new long[size];
+		for (int i = 0; i < size; i++) {
+			arr[i] = in.nextLong();
+		}
+		return arr;
+	}
+
+	static long[][] getLongArr(Scanner in, int row, int col) {
+		long[][] arr = new long[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = getLongArr(in, col);
+		}
+		return arr;
+	}
+
 	static char[] getCharArr(Scanner in, int size) {
 		char[] arr = in.next().toCharArray();
+		return arr;
+	}
+
+	static char[][] getCharArr(Scanner in, int row, int col) {
+		char[][] arr = new char[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = getCharArr(in, col);
+		}
 		return arr;
 	}
 
@@ -98,6 +124,20 @@ public class Template {
 			arr[i] = in.next();
 		}
 		return arr;
+	}
+
+	static void swap(int[] a, int i, int j) {
+		int t = a[i];
+		a[i] = a[j];
+		a[j] = t;
+	}
+
+	static void set(int[][] a, int v) {
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = v;
+			}
+		}
 	}
 
 	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
@@ -118,53 +158,6 @@ public class Template {
 
 		}
 		return edges;
-	}
-
-	static void swap(int[] a, int i, int j) {
-		int t = a[i];
-		a[i] = a[j];
-		a[j] = t;
-	}
-
-	static void setIntArr(int[][] a, int v) {
-		for (int i = 0; i < a.length; i++) {
-			for (int j = 0; j < a[i].length; j++) {
-				a[i][j] = v;
-			}
-		}
-	}
-
-	static class FastScanner implements Closeable {
-		BufferedReader br;
-		StringTokenizer st;
-
-		FastScanner(File f) {
-			try {
-				br = new BufferedReader(new FileReader(f));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-
-		String next() {
-			while (st == null || !st.hasMoreTokens()) {
-				try {
-					st = new StringTokenizer(br.readLine());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			return st.nextToken();
-		}
-
-		int nextInt() {
-			return Integer.parseInt(next());
-		}
-
-		@Override
-		public void close() throws IOException {
-			br.close();
-		}
 	}
 
 }

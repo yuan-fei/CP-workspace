@@ -1,15 +1,18 @@
+package y2021.r1c;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
-public class Solution {
+public class DoubleOrNoting {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -27,34 +30,34 @@ public class Solution {
 		in.close();
 	}
 
-	private static int solve(String s, String e) {
-		Set<String> seen = new HashSet<>();
+	private static int solve(String S, String E) {
+		int s = Integer.parseInt(S, 2);
+		int e = Integer.parseInt(E, 2);
+		Set<Integer> seen = new HashSet<>();
+		Queue<Integer> q = new LinkedList<>();
+		q.offer(s);
 		int cnt = 0;
-		while (!s.equals(e)) {
-			if (e.charAt(e.length() - 1) == '1') {
-				e = n(e);
-			} else {
-				e = r(e);
+		while (!q.isEmpty()) {
+			for (int x = q.size(); x > 0; x--) {
+				int cur = q.poll();
+				if (cur == e) {
+					return cnt;
+				}
+				int doubl = (cur << 1);
+				if (doubl < (1 << 16) && !seen.contains(doubl)) {
+					q.offer(doubl);
+					seen.add(doubl);
+				}
+				int inverse = cur == 0 ? 1 : (~cur) & (Integer.highestOneBit(cur) - 1);
+				if (inverse < (1 << 16) && !seen.contains(inverse)) {
+					q.offer(inverse);
+					seen.add(inverse);
+				}
 			}
-			if (!seen.add(e)) {
-				return -1;
-			}
+			// System.out.println(q);
 			cnt++;
 		}
-		return cnt;
-	}
-
-	static String n(String s) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(1);
-		for (char c : s.toCharArray()) {
-			sb.append(1 - (c - '0'));
-		}
-		return sb.toString();
-	}
-
-	static String r(String s) {
-		return s.substring(0, s.length() - 1);
+		return -1;
 	}
 
 	private static void test() {

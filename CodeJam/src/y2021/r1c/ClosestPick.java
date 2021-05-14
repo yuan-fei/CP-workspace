@@ -1,16 +1,17 @@
+package y2021.r1c;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.Set;
 
-public class Solution {
+public class ClosestPick {
 	public static void main(String[] args) {
+		// test();
 		solve();
 	}
 
@@ -19,53 +20,80 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			String S = in.next();
-			String E = in.next();
-			int r = solve(S, E);
-			System.out.println("Case #" + i + ": " + (r == -1 ? "IMPOSSIBLE" : r));
+			int N = in.nextInt();
+			int K = in.nextInt();
+			int[] P = getIntArr(in, N);
+			double r = solve(N, K, P);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static int solve(String s, String e) {
-		Set<String> seen = new HashSet<>();
-		int cnt = 0;
-		while (!s.equals(e)) {
-			if (e.charAt(e.length() - 1) == '1') {
-				e = n(e);
-			} else {
-				e = r(e);
+	private static double solve(int n, int k, int[] p) {
+		Arrays.sort(p);
+		PriorityQueue<Integer> q = new PriorityQueue<>();
+		int max2 = 0;
+		int fi = p[0] - 1;
+		if (fi > 0) {
+			q.offer(fi);
+			if (q.size() > 2) {
+				q.poll();
 			}
-			if (!seen.add(e)) {
-				return -1;
-			}
-			cnt++;
 		}
-		return cnt;
+		for (int i = 1; i < n; i++) {
+			int t = countWin(p[i - 1], p[i]);
+			if (t > 0) {
+				q.offer(t);
+				if (q.size() > 2) {
+					q.poll();
+				}
+				max2 = Math.max(max2, p[i] - p[i - 1] - 1);
+			}
+		}
+		int last = k - p[n - 1];
+		if (last > 0) {
+			q.offer(last);
+			if (q.size() > 2) {
+				q.poll();
+			}
+		}
+		int totalWin = 0;
+		while (!q.isEmpty()) {
+			totalWin += q.poll();
+		}
+		totalWin = Math.max(max2, totalWin);
+		return 1.0d * totalWin / k;
 	}
 
-	static String n(String s) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(1);
-		for (char c : s.toCharArray()) {
-			sb.append(1 - (c - '0'));
+	private static int countWin(int left, int right) {
+		if (left >= right) {
+			return 0;
+		} else {
+			return (right - left) / 2;
 		}
-		return sb.toString();
-	}
-
-	static String r(String s) {
-		return s.substring(0, s.length() - 1);
 	}
 
 	private static void test() {
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 1; i++) {
 			testOnce();
 		}
 	}
 
 	private static void testOnce() {
-		Random r = new Random();
-		int n = r.nextInt();
+		for (int i = 2; i < 100; i++) {
+			int max = 0;
+			for (int j = 1; j <= i; j++) {
+				// max = Math.max(max, (j - 1 - 1) / 2 + (i - j - 1) / 2 + 1);
+				int cnt = 0;
+				for (int k = 1; k <= i; k++) {
+					if (Math.abs(j - k) < Math.abs(1 - k) && Math.abs(j - k) < Math.abs(i - k)) {
+						cnt++;
+					}
+				}
+				max = Math.max(max, cnt);
+			}
+			System.out.println("1, " + i + "=" + max);
+		}
 	}
 
 	static long mod = 1000000007;

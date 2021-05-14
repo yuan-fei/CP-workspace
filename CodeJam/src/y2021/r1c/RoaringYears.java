@@ -1,15 +1,15 @@
+package y2021.r1c;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
+import java.util.TreeSet;
 
-public class Solution {
+public class RoaringYears {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -17,44 +17,49 @@ public class Solution {
 	private static void solve() {
 		// isRoaring(122);
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		roaringYears = prepare();
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			String S = in.next();
-			String E = in.next();
-			int r = solve(S, E);
-			System.out.println("Case #" + i + ": " + (r == -1 ? "IMPOSSIBLE" : r));
+			long n = in.nextLong();
+			long r = solve(n);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static int solve(String s, String e) {
-		Set<String> seen = new HashSet<>();
-		int cnt = 0;
-		while (!s.equals(e)) {
-			if (e.charAt(e.length() - 1) == '1') {
-				e = n(e);
-			} else {
-				e = r(e);
+	static TreeSet<Long> roaringYears;
+
+	private static TreeSet<Long> prepare() {
+		TreeSet<Long> s = new TreeSet<>();
+		for (int i = 12; i <= 1234567; i++) {
+			if (isRoaring(i)) {
+				s.add((long) i);
 			}
-			if (!seen.add(e)) {
-				return -1;
-			}
-			cnt++;
 		}
-		return cnt;
+		return s;
 	}
 
-	static String n(String s) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(1);
-		for (char c : s.toCharArray()) {
-			sb.append(1 - (c - '0'));
+	private static boolean isRoaring(int n) {
+		String s = "" + n;
+		for (int l = 1; l <= s.length() / 2; l++) {
+			int totalLength = l;
+			long cur = Long.parseLong(s.substring(0, l));
+			StringBuilder sb = new StringBuilder();
+			sb.append(cur);
+			while (totalLength < s.length()) {
+				cur++;
+				sb.append(cur);
+				totalLength += ("" + cur).length();
+			}
+			if (totalLength == s.length() && sb.toString().equals(s)) {
+				return true;
+			}
 		}
-		return sb.toString();
+		return false;
 	}
 
-	static String r(String s) {
-		return s.substring(0, s.length() - 1);
+	private static long solve(long n) {
+		return roaringYears.higher(n);
 	}
 
 	private static void test() {

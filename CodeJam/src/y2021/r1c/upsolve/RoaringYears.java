@@ -1,15 +1,15 @@
+package y2021.r1c.upsolve;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 
-public class Solution {
+public class RoaringYears {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -19,42 +19,75 @@ public class Solution {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			String S = in.next();
-			String E = in.next();
-			int r = solve(S, E);
-			System.out.println("Case #" + i + ": " + (r == -1 ? "IMPOSSIBLE" : r));
+			long n = in.nextLong();
+			String r = solve("" + n);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static int solve(String s, String e) {
-		Set<String> seen = new HashSet<>();
-		int cnt = 0;
-		while (!s.equals(e)) {
-			if (e.charAt(e.length() - 1) == '1') {
-				e = n(e);
+	private static String solve(String n) {
+		String min = null;
+		for (int c = 2; c <= 18; c++) {
+			String s = getMin(n, c);
+			if (min == null) {
+				min = s;
 			} else {
-				e = r(e);
+				if (s.length() == min.length()) {
+					int cmp = s.compareTo(min);
+					if (cmp < 0) {
+						min = s;
+					}
+				} else if (s.length() < min.length()) {
+					min = s;
+				}
 			}
-			if (!seen.add(e)) {
-				return -1;
-			}
-			cnt++;
 		}
-		return cnt;
+		return min;
 	}
 
-	static String n(String s) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(1);
-		for (char c : s.toCharArray()) {
-			sb.append(1 - (c - '0'));
+	private static String getMin(String n, int c) {
+		int ub = (18 + c - 1) / c;
+		long high = (long) Math.pow(10, ub);
+		long low = 1;
+		while (low + 1 < high) {
+			long mid = (high - low) / 2 + low;
+			String cur = gen(mid, c);
+			if (cur.length() == n.length()) {
+				int cmp = cur.compareTo(n);
+				if (cmp > 0) {
+					high = mid;
+				} else {
+					low = mid;
+				}
+			} else if (cur.length() > n.length()) {
+				high = mid;
+			} else {
+				low = mid;
+			}
 		}
-		return sb.toString();
+		String cur = gen(low, c);
+		if (cur.length() == n.length()) {
+			int cmp = cur.compareTo(n);
+			if (cmp > 0) {
+				return cur;
+			} else {
+				return gen(high, c);
+			}
+		} else if (cur.length() > n.length()) {
+			return cur;
+		} else {
+			return gen(high, c);
+		}
 	}
 
-	static String r(String s) {
-		return s.substring(0, s.length() - 1);
+	static String gen(long pfx, int cnt) {
+		String s = "" + pfx;
+		for (int i = 0; i < cnt - 1; i++) {
+			pfx++;
+			s += pfx;
+		}
+		return s;
 	}
 
 	private static void test() {
