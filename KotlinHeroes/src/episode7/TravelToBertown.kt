@@ -1,4 +1,4 @@
-import java.util.*
+package episode7
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -49,7 +49,7 @@ private fun isWhiteSpace(c: Char) = c in " \r\n\t"
 
 // JVM-only targeting code follows next
 
-// episode3.readString() via sequence is still slightly faster than Scanner
+// episode3.episode7.readString() via sequence is still slightly faster than Scanner
 private fun readString() = generateSequence { System.`in`.read().toChar() }
     .dropWhile { isWhiteSpace(it) }.takeWhile { !isWhiteSpace(it) }.joinToString("")
 
@@ -89,29 +89,21 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
+private data class Interval(val start:Int, val end:Int)
+
 private fun main() {
-    val (n,m) = readlnInts()
-    val set = mutableSetOf<String>()
-    for(i in 1..n){
-        set.add(readln())
-    }
-    val q = readInt()
-    repeat(q){
-        val s = readln()
-        var cnt = 0
-        val setOfQuery = mutableSetOf<String>()
-        for(j in s.indices){
-            val ss = s.substring(0, j) + s.substring(j + 1)
-            setOfQuery.add(ss)
-        }
-        for(qs in setOfQuery){
-            if(set.contains(qs)){
-                cnt++
+    val c = readlnInt()
+    for (i in 1..c){
+        var (n, k) = readlnInts()
+        var max = 0
+        for(j in 1..n){
+            val (l, r) = readlnInts()
+            if(k in l..r){
+                max = max.coerceAtLeast(r - k + 1)
             }
         }
-        println(cnt)
+        println(max)
     }
-
 
 }
 

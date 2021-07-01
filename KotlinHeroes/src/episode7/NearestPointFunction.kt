@@ -1,3 +1,4 @@
+
 import java.util.*
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
@@ -89,29 +90,22 @@ private fun printStringArray(a: Array<String>) {
     println(a.joinToString(", "))
 }
 
+private data class Interval(val start:Int, val end:Int)
+
 private fun main() {
-    val (n,m) = readlnInts()
-    val set = mutableSetOf<String>()
-    for(i in 1..n){
-        set.add(readln())
-    }
-    val q = readInt()
-    repeat(q){
-        val s = readln()
-        var cnt = 0
-        val setOfQuery = mutableSetOf<String>()
-        for(j in s.indices){
-            val ss = s.substring(0, j) + s.substring(j + 1)
-            setOfQuery.add(ss)
-        }
-        for(qs in setOfQuery){
-            if(set.contains(qs)){
-                cnt++
+    val c = readlnInt()
+    for (i in 1..c){
+        val n = readlnInts()
+        val arr: IntArray = readIntArray()
+        var good =false
+        for(j in 1 until arr.size){
+            if(arr[j] % 2 == arr[j - 1] % 2){
+                good = true
+                break
             }
         }
-        println(cnt)
+        println(if(good) "YES" else "NO")
     }
-
 
 }
 

@@ -1,3 +1,5 @@
+package episode7
+
 import java.util.*
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
@@ -90,28 +92,35 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-    val (n,m) = readlnInts()
-    val set = mutableSetOf<String>()
-    for(i in 1..n){
-        set.add(readln())
-    }
-    val q = readInt()
-    repeat(q){
+    val cc = readlnInt()
+    for (i in 1..cc){
+        val (n,k) = readlnInts()
         val s = readln()
-        var cnt = 0
-        val setOfQuery = mutableSetOf<String>()
-        for(j in s.indices){
-            val ss = s.substring(0, j) + s.substring(j + 1)
-            setOfQuery.add(ss)
+        val q: Queue<Char> = LinkedList()
+        var cnt:Int = 0
+        var cntOne:Int = 0
+        for (c in s){
+            q.offer(c)
+            if(c == '1'){
+                cntOne++
+            }
         }
-        for(qs in setOfQuery){
-            if(set.contains(qs)){
-                cnt++
+
+
+        while (cntOne > 0){
+            if(q.poll() == '1'){
+                cntOne--
+            }
+            cnt++
+            if(!q.isEmpty()){
+                val x = (k - 1) % q.size
+                for (j in 1..x){
+                    q.offer(q.poll())
+                }
             }
         }
         println(cnt)
     }
-
 
 }
 

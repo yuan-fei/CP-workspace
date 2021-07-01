@@ -1,3 +1,5 @@
+package episode7
+
 import java.util.*
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
@@ -96,11 +98,11 @@ private fun main() {
         set.add(readln())
     }
     val q = readInt()
-    repeat(q){
+    for (i in 1..q){
         val s = readln()
         var cnt = 0
         val setOfQuery = mutableSetOf<String>()
-        for(j in s.indices){
+        for(j in 0..m){
             val ss = s.substring(0, j) + s.substring(j + 1)
             setOfQuery.add(ss)
         }

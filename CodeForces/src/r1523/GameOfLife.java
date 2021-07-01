@@ -1,4 +1,4 @@
-
+package r1523;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -8,16 +8,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class TaskA {
+public class GameOfLife {
 	public static void main(String[] args) {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
-		for (int i = 1; i <= t; ++i) {
+		for (int i = 0; i < t; i++) {
 			int n = in.nextInt();
 			int m = in.nextInt();
-			System.out.println();
+			char[] a = getCharArr(in, n);
+			String r = solve(n, m, a);
+			System.out.println(r);
 		}
+
 		in.close();
+	}
+
+	private static String solve(int n, int m, char[] a) {
+		m = Math.min(n, m);
+		for (int i = 0; i < m; i++) {
+			char[] newA = new char[n];
+			for (int j = 0; j < n; j++) {
+				int left = 0;
+				int right = 0;
+				if (j > 0) {
+					left = a[j - 1] - '0';
+				}
+				if (j < n - 1) {
+					right = a[j + 1] - '0';
+				}
+				if ((left ^ right) == 1) {
+					newA[j] = '1';
+				} else {
+					newA[j] = a[j];
+				}
+			}
+			a = newA;
+		}
+		return String.valueOf(a);
 	}
 
 	static long mod = 1000000007;
@@ -42,12 +69,20 @@ public class TaskA {
 		}
 	}
 
-	static String str(int[] a) {
-		String[] str = new String[a.length];
-		for (int i = 0; i < a.length; i++) {
-			str[i] = a[i] + "";
+	static String str(List<Integer> a) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < a.size(); i++) {
+			sb.append(a.get(i) + " ");
 		}
-		return String.join(" ", str);
+		return sb.toString();
+	}
+
+	static String str(int[] a) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < a.length; i++) {
+			sb.append(a[i] + " ");
+		}
+		return sb.toString();
 	}
 
 	static int[] getIntArr(Scanner in, int size) {
@@ -66,8 +101,32 @@ public class TaskA {
 		return arr;
 	}
 
+	static long[] getLongArr(Scanner in, int size) {
+		long[] arr = new long[size];
+		for (int i = 0; i < size; i++) {
+			arr[i] = in.nextLong();
+		}
+		return arr;
+	}
+
+	static long[][] getLongArr(Scanner in, int row, int col) {
+		long[][] arr = new long[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = getLongArr(in, col);
+		}
+		return arr;
+	}
+
 	static char[] getCharArr(Scanner in, int size) {
 		char[] arr = in.next().toCharArray();
+		return arr;
+	}
+
+	static char[][] getCharArr(Scanner in, int row, int col) {
+		char[][] arr = new char[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = getCharArr(in, col);
+		}
 		return arr;
 	}
 
@@ -77,6 +136,20 @@ public class TaskA {
 			arr[i] = in.next();
 		}
 		return arr;
+	}
+
+	static void swap(int[] a, int i, int j) {
+		int t = a[i];
+		a[i] = a[j];
+		a[j] = t;
+	}
+
+	static void set(int[][] a, int v) {
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = v;
+			}
+		}
 	}
 
 	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
@@ -98,4 +171,5 @@ public class TaskA {
 		}
 		return edges;
 	}
+
 }
