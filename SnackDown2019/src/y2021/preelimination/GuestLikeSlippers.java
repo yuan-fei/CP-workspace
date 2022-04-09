@@ -1,3 +1,4 @@
+package y2021.preelimination;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,7 +12,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-public class Main {
+public class GuestLikeSlippers {
 	public static void main(String[] args) {
 		solve();
 //		test();
@@ -21,87 +22,29 @@ public class Main {
 
 	private static void solve() {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
-		int t = in.nextInt();
-//		int t = 1;
+//		int t = in.nextInt();
+		int t = 1;
 		for (int i = 0; i < t; i++) {
 			int n = in.nextInt();
-			int k = in.nextInt();
 			int[] a = getIntArr(in, n);
-			int[] r = solve(n, k, a);
-			if (r.length == 0) {
-				System.out.println(-1);
-			} else {
-				System.out.println(str(r));
-			}
-
+			long r = solve(n, a);
+			System.out.println(r);
 		}
 
 		in.close();
 	}
 
-	private static int[] solve(int n, int k, int[] a) {
-		int[] cnt = new int[201];
-		int[] pSum = new int[201];
-		for (int x : a) {
-			cnt[x]++;
+	private static long solve(int n, int[] a) {
+		long res = 0;
+		PointIncrementRangeSumQueryTree s = new PointIncrementRangeSumQueryTree(200005);
+		s.increase(0, 1);
+		for (int i = 0; i < a.length; i++) {
+			int v = s.query(0, a[i] - 1);
+//			System.out.println(v);
+			s.increase(a[i], v);
 		}
-		for (int i = 1; i < cnt.length; i++) {
-			pSum[i] = pSum[i - 1] + cnt[i];
-		}
-		if (k == 1) {
-			int max = 0;
-			for (int j = 0; j < cnt.length; j++) {
-				if (cnt[j] > 0) {
-					max = Math.max(max, cnt[j]);
-				}
-			}
-			if (max == 1) {
-				int[] ret = new int[n];
-				int cur = 0;
 
-				for (int j = cnt.length - 1; j >= 0; j--) {
-					while (cnt[j] > 0) {
-						ret[cur++] = j;
-						cnt[j]--;
-					}
-				}
-				return ret;
-			} else {
-				return new int[0];
-			}
-		}
-		for (int i = 0; i < cnt.length; i++) {
-			if (cnt[i] > 0) {
-				int max = 0;
-				for (int j = i + 1; j < cnt.length; j++) {
-					if (cnt[j] > 0) {
-						max = Math.max(max, cnt[j]);
-					}
-				}
-				if (max + pSum[i] == k) {
-					int[] ret = new int[n];
-					int cur = 0;
-					for (int j = 1; j <= i; j++) {
-						while (cnt[j] > 0) {
-							ret[cur++] = j;
-							cnt[j]--;
-						}
-					}
-					for (int j = cnt.length - 1; j > i; j--) {
-						while (cnt[j] > 0) {
-							ret[cur++] = j;
-							cnt[j]--;
-						}
-					}
-					return ret;
-
-				} else if (max + pSum[i] > k) {
-					return new int[0];
-				}
-			}
-
-		}
-		return new int[0];
+		return s.query(0, 200005);
 	}
 
 	static void dec(TreeMap<Long, Integer> tm, long key) {

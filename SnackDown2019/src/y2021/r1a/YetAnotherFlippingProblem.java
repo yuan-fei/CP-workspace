@@ -1,82 +1,96 @@
+package y2021.r1a;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class YetAnotherFlippingProblem {
 	public static void main(String[] args) {
 		solve();
-	}
-
-	static Scanner in;
-
-	private static void solve() {
-		in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
-		int t = in.nextInt();
-		for (int i = 1; i <= t; ++i) {
-			int n = in.nextInt();
-			solve(n);
-		}
-		in.close();
-	}
-
-	private static void solve(int n) {
-		List<Integer> l = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			l.add(1 << i);
-		}
-		// put arbitrary 70 numbers
-		List<Integer> lRest = new ArrayList<>();
-		for (int i = (1 << 29) - 1; i >= (1 << 29) - 70; i -= 1) {
-			lRest.add(i);
-			l.add(i);
-		}
-
-		System.out.println(str(l));
-		for (int i = 0; i < 100; i++) {
-			lRest.add(in.nextInt());
-		}
-		Collections.sort(lRest);
-		List<Integer> lFirst = new ArrayList<>();
-		int diff = 0;
-		for (int i = 0; i < 170; i += 2) {
-			diff += lRest.get(i + 1) - lRest.get(i);
-			lFirst.add(lRest.get(i + 1));
-		}
-//		System.err.println(diff);
-		int total = (1 << 30) - 1;
-		int pick = (total - diff) >> 1;
-		for (int i = 0; i < 30; i++) {
-			if (((pick >> i) & 1) != 0) {
-				lFirst.add(1 << i);
-			}
-		}
-		System.out.println(str(lFirst));
-//		System.err.println(str(lFirst));
-	}
-
-	static int[] ask(String action, int x) {
-
-		System.out.println(action + " " + x);
-		if (action.equals("E")) {
-			return new int[0];
-		}
-		return getIntArr(in, 2);
+//		test();
 	}
 
 	private static void test() {
-		for (int i = 0; i < 10000; i++) {
-			testOnce();
+		for (int i = 1; i < 100001; i += 2) {
+			System.out.println(i);
+			if (!validate(i, solve(1, i))) {
+				System.out.println(i + ", " + Arrays.toString(solve(1, i)));
+			}
 		}
 	}
 
-	private static void testOnce() {
-		Random r = new Random();
-		int n = r.nextInt();
+	private static void solve() {
+		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		int t = in.nextInt();
+		for (int i = 0; i < t; i++) {
+			int n = in.nextInt();
+			int k = in.nextInt();
+			long[] r = solve(n, k);
+			if (r == null) {
+				System.out.println("NO");
+			} else {
+				System.out.println("YES");
+				System.out.println(r.length);
+				if (r.length > 0) {
+					System.out.println(str(r));
+				}
+			}
+
+		}
+
+		in.close();
 	}
+
+	private static long[] solve(int n, long k) {
+		if (k == 0) {
+			return new long[0];
+		}
+		if (k % 2 == 0) {
+			return null;
+		}
+		long x = 1;
+		int m = 0;
+		while (x <= k) {
+			x <<= 1;
+			m++;
+		}
+		long[] r = new long[m];
+		long cnt1 = k;
+		x >>= 1;
+		long p = 0;
+		for (int i = 0; i < m; i++) {
+			if (cnt1 >= x) {
+				r[m - i - 1] = p + 1;
+				cnt1 -= x;
+				p += x;
+			} else {
+				cnt1 = x - cnt1;
+				p -= cnt1;
+				r[m - i - 1] = p + 1;
+			}
+			x >>= 1;
+		}
+		return r;
+	}
+
+	static boolean validate(int k, long[] r) {
+		int[] a = new int[k];
+		int[] b = new int[k];
+		Arrays.fill(b, 1);
+		for (int i = 0; i < r.length; i++) {
+			for (int j = 0; j < (1 << i); j++) {
+				a[(int) r[i] - 1 + j] = 1 - a[(int) r[i] - 1 + j];
+			}
+		}
+		return Arrays.equals(a, b);
+	}
+
+	static int MAX = (int) 1e9 + 8;
 
 	static long mod = 1000000007;
 
@@ -104,6 +118,14 @@ public class Solution {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.size(); i++) {
 			sb.append(a.get(i) + " ");
+		}
+		return sb.toString();
+	}
+
+	static String str(long[] a) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < a.length; i++) {
+			sb.append(a[i] + "\n");
 		}
 		return sb.toString();
 	}
@@ -183,29 +205,24 @@ public class Solution {
 		}
 	}
 
-	static private List<Integer>[] buildAdj(int n, int[][] edges, boolean biDirectional) {
-		List<Integer>[] ans = new List[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = new ArrayList<>();
-		}
-		for (int i = 0; i < edges.length; i++) {
-			ans[edges[i][0]].add(i);
-			if (biDirectional) {
-				ans[edges[i][1]].add(i);
+	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
+		Map<Integer, List<Integer>> edges = new HashMap<>();
+		for (int i = 0; i < size; i++) {
+			int from = in.nextInt();
+			int to = in.nextInt();
+			if (!edges.containsKey(from)) {
+				edges.put(from, new ArrayList<Integer>());
 			}
-		}
-		return ans;
-	}
+			edges.get(from).add(to);
+			if (!directed) {
+				if (!edges.containsKey(to)) {
+					edges.put(to, new ArrayList<Integer>());
+				}
+				edges.get(to).add(from);
+			}
 
-	static private List<Integer>[] buildRootedTree(int n, int[] edges) {
-		List<Integer>[] ans = new List[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = new ArrayList<>();
 		}
-		for (int i = 0; i < edges.length; i++) {
-			ans[edges[i]].add(i);
-		}
-		return ans;
+		return edges;
 	}
 
 }

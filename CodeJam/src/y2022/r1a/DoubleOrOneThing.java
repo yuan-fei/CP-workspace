@@ -1,70 +1,50 @@
+package y2022.r1a;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Solution {
+public class DoubleOrOneThing {
 	public static void main(String[] args) {
 		solve();
 	}
 
-	static Scanner in;
-
 	private static void solve() {
-		in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
-			int n = in.nextInt();
-			solve(n);
+			String s = in.next();
+			String r = solve(s);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static void solve(int n) {
-		List<Integer> l = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			l.add(1 << i);
-		}
-		// put arbitrary 70 numbers
-		List<Integer> lRest = new ArrayList<>();
-		for (int i = (1 << 29) - 1; i >= (1 << 29) - 70; i -= 1) {
-			lRest.add(i);
-			l.add(i);
-		}
-
-		System.out.println(str(l));
-		for (int i = 0; i < 100; i++) {
-			lRest.add(in.nextInt());
-		}
-		Collections.sort(lRest);
-		List<Integer> lFirst = new ArrayList<>();
-		int diff = 0;
-		for (int i = 0; i < 170; i += 2) {
-			diff += lRest.get(i + 1) - lRest.get(i);
-			lFirst.add(lRest.get(i + 1));
-		}
-//		System.err.println(diff);
-		int total = (1 << 30) - 1;
-		int pick = (total - diff) >> 1;
-		for (int i = 0; i < 30; i++) {
-			if (((pick >> i) & 1) != 0) {
-				lFirst.add(1 << i);
+	private static String solve(String s) {
+		int n = s.length();
+		StringBuilder sb = new StringBuilder();
+		int l = 0;
+		int r = 0;
+		while (r < n) {
+			while (r < n && s.charAt(l) == s.charAt(r)) {
+				r++;
+			}
+			if (r < n && s.charAt(l) < s.charAt(r)) {
+				while (l < r) {
+					sb.append(s.charAt(l));
+					sb.append(s.charAt(l));
+					l++;
+				}
+			} else {
+				while (l < r) {
+					sb.append(s.charAt(l));
+					l++;
+				}
 			}
 		}
-		System.out.println(str(lFirst));
-//		System.err.println(str(lFirst));
-	}
-
-	static int[] ask(String action, int x) {
-
-		System.out.println(action + " " + x);
-		if (action.equals("E")) {
-			return new int[0];
-		}
-		return getIntArr(in, 2);
+		return sb.toString();
 	}
 
 	private static void test() {

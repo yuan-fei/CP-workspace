@@ -1,17 +1,17 @@
+package y2021.r1a;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-public class Main {
+public class EqualBeauty {
 	public static void main(String[] args) {
 		solve();
 //		test();
@@ -22,86 +22,54 @@ public class Main {
 	private static void solve() {
 		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
-//		int t = 1;
 		for (int i = 0; i < t; i++) {
 			int n = in.nextInt();
-			int k = in.nextInt();
-			int[] a = getIntArr(in, n);
-			int[] r = solve(n, k, a);
-			if (r.length == 0) {
-				System.out.println(-1);
-			} else {
-				System.out.println(str(r));
-			}
-
+			long[] a = getLongArr(in, n);
+			long r = solve(n, a);
+			System.out.println(r);
 		}
 
 		in.close();
 	}
 
-	private static int[] solve(int n, int k, int[] a) {
-		int[] cnt = new int[201];
-		int[] pSum = new int[201];
-		for (int x : a) {
-			cnt[x]++;
+	private static long solve(int n, long[] a) {
+		if (a.length == 2) {
+			return 0;
 		}
-		for (int i = 1; i < cnt.length; i++) {
-			pSum[i] = pSum[i - 1] + cnt[i];
+		TreeMap<Long, Integer> tm = new TreeMap<>();
+		for (long x : a) {
+			inc(tm, x);
 		}
-		if (k == 1) {
-			int max = 0;
-			for (int j = 0; j < cnt.length; j++) {
-				if (cnt[j] > 0) {
-					max = Math.max(max, cnt[j]);
-				}
+		Long minKey = tm.firstKey();
+		Long maxKey = tm.lastKey();
+		dec(tm, minKey);
+		dec(tm, maxKey);
+		long sum = minKey + maxKey;
+		long min = Long.MAX_VALUE;
+		Arrays.sort(a);
+		for (int i = 1; i < n - 1; i++) {
+			dec(tm, a[i]);
+			Long ceiling = tm.ceilingKey(sum - a[i]);
+			Long floor = tm.floorKey(sum - a[i]);
+			if (ceiling != null) {
+				min = Math.min(min, Math.abs(sum - a[i] - ceiling));
 			}
-			if (max == 1) {
-				int[] ret = new int[n];
-				int cur = 0;
-
-				for (int j = cnt.length - 1; j >= 0; j--) {
-					while (cnt[j] > 0) {
-						ret[cur++] = j;
-						cnt[j]--;
-					}
-				}
-				return ret;
-			} else {
-				return new int[0];
+			if (floor != null) {
+				min = Math.min(min, Math.abs(sum - a[i] - floor));
 			}
+			inc(tm, a[i]);
 		}
-		for (int i = 0; i < cnt.length; i++) {
-			if (cnt[i] > 0) {
-				int max = 0;
-				for (int j = i + 1; j < cnt.length; j++) {
-					if (cnt[j] > 0) {
-						max = Math.max(max, cnt[j]);
-					}
-				}
-				if (max + pSum[i] == k) {
-					int[] ret = new int[n];
-					int cur = 0;
-					for (int j = 1; j <= i; j++) {
-						while (cnt[j] > 0) {
-							ret[cur++] = j;
-							cnt[j]--;
-						}
-					}
-					for (int j = cnt.length - 1; j > i; j--) {
-						while (cnt[j] > 0) {
-							ret[cur++] = j;
-							cnt[j]--;
-						}
-					}
-					return ret;
-
-				} else if (max + pSum[i] > k) {
-					return new int[0];
-				}
-			}
-
+		long sumMin = 0;
+		long sumMax = 0;
+		for (int i = 0; i < n - 1; i++) {
+			sumMin += Math.abs(a[i] - a[(n - 1) / 2]);
 		}
-		return new int[0];
+		for (int i = 1; i < n; i++) {
+			sumMax += Math.abs(a[i] - a[n / 2]);
+		}
+		min = Math.min(min, sumMin);
+		min = Math.min(min, sumMax);
+		return min;
 	}
 
 	static void dec(TreeMap<Long, Integer> tm, long key) {
@@ -150,6 +118,24 @@ public class Main {
 			}
 		}
 		return ret;
+	}
+
+	static void testOnce(int n) {
+		for (int i = 0; i < Math.pow(10, n); i++) {
+			long[] a = generateCase(n, i);
+			long r1 = solve(n, a);
+			long r2 = solveSlow(n, a);
+			if (r1 != r2) {
+				System.out.println(Arrays.toString(a) + ", " + r1 + ", " + r2);
+			}
+		}
+
+	}
+
+	static void test() {
+		for (int i = 0; i < 1; i++) {
+			testOnce(4);
+		}
 	}
 
 	static int MAX = (int) 1e9 + 8;
@@ -287,124 +273,4 @@ public class Main {
 		return edges;
 	}
 
-}
-
-class PointIncrementRangeSumQueryTree {
-	long MOD = 998244353L;
-
-	class SegmentTreeNode {
-		public int start, end;
-		public SegmentTreeNode left, right;
-		public int value;
-
-		public SegmentTreeNode(int start, int end) {
-			this.start = start;
-			this.end = end;
-		}
-
-		@Override
-		public String toString() {
-			return "[" + start + ", " + end + "] = " + value;
-		}
-	}
-
-	SegmentTreeNode root;
-	int n;
-
-	public PointIncrementRangeSumQueryTree(int n) {
-		build(n);
-	}
-
-	public void build(int n) {
-		this.n = n;
-		root = build(0, n - 1);
-	}
-
-	public int query(int start, int end) {
-		return query(root, start, end);
-	}
-
-	public void increase(int index, int value) {
-		increase(root, index, value);
-	}
-
-	private SegmentTreeNode build(int start, int end) {
-		SegmentTreeNode r = new SegmentTreeNode(start, end);
-		if (start < end) {
-			r.left = build(start, start + (end - start) / 2);
-			r.right = build(start + (end - start) / 2 + 1, end);
-			r.value = add(r.left.value, r.right.value);
-		}
-		return r;
-	}
-
-	private int query(SegmentTreeNode r, int start, int end) {
-		if (r == null) {
-			return 0;
-		} else if (start > r.end || end < r.start) {
-			return 0;
-		} else if (start <= r.start && end >= r.end) {
-			return r.value;
-		} else {
-			int leftSum = query(r.left, start, end);
-			int rightSum = query(r.right, start, end);
-			return add(leftSum, rightSum);
-		}
-	}
-
-	private void increase(SegmentTreeNode r, int index, int value) {
-		if (r != null && index >= r.start && index <= r.end) {
-			if (r.start == index && r.end == index) {
-				r.value = add(r.value, value);
-			} else {
-				increase(r.left, index, value);
-				increase(r.right, index, value);
-				r.value = add(r.left.value, r.right.value);
-			}
-		}
-	}
-
-	private int add(int a, int b) {
-		long r = 0;
-		r += a;
-		r += b;
-		r %= MOD;
-		return (int) r;
-	}
-
-	public static void main(String[] args) {
-		int[] a = new int[] { -1, 0, 1, 2, 3, 4, 5 };
-		PointIncrementRangeSumQueryTree s = new PointIncrementRangeSumQueryTree(a.length);
-		for (int i = 0; i < a.length; i++) {
-			s.increase(i, a[i]);
-		}
-		s.print();
-		System.out.println(s.query(0, 6));
-		System.out.println(s.query(0, 2));
-		System.out.println(s.query(2, 6));
-		System.out.println(s.query(4, 6));
-		s.increase(0, 1);
-		s.print();
-		System.out.println(s.query(0, 7));
-
-	}
-
-	public void print() {
-		Queue<SegmentTreeNode> q = new LinkedList<SegmentTreeNode>();
-		q.offer(root);
-		while (!q.isEmpty()) {
-			int cnt = q.size();
-			String s = "";
-			for (int i = 0; i < cnt; i++) {
-				SegmentTreeNode n = q.poll();
-				s += (n + ",");
-				if (n != null) {
-					q.offer(n.left);
-					q.offer(n.right);
-				}
-			}
-			System.out.println(s);
-		}
-		System.out.println();
-	}
 }

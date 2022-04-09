@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Solution {
+public class Solution2 {
 	public static void main(String[] args) {
 		solve();
 	}
@@ -18,44 +18,28 @@ public class Solution {
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			solve(n);
+			int m = in.nextInt();
+			solve(n, m);
 		}
 		in.close();
 	}
 
-	private static void solve(int n) {
+	private static void solve(int n, int m) {
 		List<Integer> l = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			l.add(1 << i);
+		for (int i = 0; i < n; i++) {
+			l.add(i + 1);
 		}
-		// put arbitrary 70 numbers
-		List<Integer> lRest = new ArrayList<>();
-		for (int i = (1 << 29) - 1; i >= (1 << 29) - 70; i -= 1) {
-			lRest.add(i);
-			l.add(i);
+		Collections.shuffle(l);
+		int cnt = Math.min(n, m);
+		int total = 0;
+		// we don't need the first one
+		getIntArr(in, 2);
+		for (int i = 0; i < cnt; i++) {
+//			System.err.println(i);
+			total += ask("T", l.get(i))[1];
 		}
-
-		System.out.println(str(l));
-		for (int i = 0; i < 100; i++) {
-			lRest.add(in.nextInt());
-		}
-		Collections.sort(lRest);
-		List<Integer> lFirst = new ArrayList<>();
-		int diff = 0;
-		for (int i = 0; i < 170; i += 2) {
-			diff += lRest.get(i + 1) - lRest.get(i);
-			lFirst.add(lRest.get(i + 1));
-		}
-//		System.err.println(diff);
-		int total = (1 << 30) - 1;
-		int pick = (total - diff) >> 1;
-		for (int i = 0; i < 30; i++) {
-			if (((pick >> i) & 1) != 0) {
-				lFirst.add(1 << i);
-			}
-		}
-		System.out.println(str(lFirst));
-//		System.err.println(str(lFirst));
+		long ans = (1l * total * n) / (2 * cnt);
+		ask("E", (int) ans);
 	}
 
 	static int[] ask(String action, int x) {

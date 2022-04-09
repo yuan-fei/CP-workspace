@@ -1,70 +1,80 @@
+package y2022.ioForWomen;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.TreeMap;
 
-public class Solution {
+public class IngredientOptimization {
 	public static void main(String[] args) {
 		solve();
 	}
 
-	static Scanner in;
-
 	private static void solve() {
-		in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
+			int d = in.nextInt();
 			int n = in.nextInt();
-			solve(n);
+			int u = in.nextInt();
+			int[][] delivers = getIntArr(in, d, 3);
+			int[] orders = getIntArr(in, n);
+			int r = solve(d, n, u, delivers, orders);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static void solve(int n) {
-		List<Integer> l = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			l.add(1 << i);
+	private static int solve(int d, int n, int u, int[][] delivers, int[] orders) {
+		int[][] events = new int[d * 2 + n][];
+		int i = 0;
+		TreeMap<int[], Integer> tm = new TreeMap<>(
+				(a, b) -> Integer.compare(a[0], b[0]) == 0 ? Integer.compare(a[1], b[1]) : Integer.compare(a[0], b[0]));
+		for (int[] deliver : delivers) {
+			events[i] = new int[] { deliver[0], deliver[1], 1, deliver[0] + deliver[2], i };
+			i++;
+			events[i] = new int[] { deliver[0] + deliver[2], -deliver[1], 2, deliver[0], i - 1 };
+			i++;
 		}
-		// put arbitrary 70 numbers
-		List<Integer> lRest = new ArrayList<>();
-		for (int i = (1 << 29) - 1; i >= (1 << 29) - 70; i -= 1) {
-			lRest.add(i);
-			l.add(i);
+		for (int j = 0; j < orders.length; j++) {
+			int o = orders[j];
+			events[i] = new int[] { o, -u, 3, j };
+			i++;
 		}
+		Arrays.sort(events,
+				(a, b) -> Integer.compare(a[0], b[0]) != 0 ? Integer.compare(a[0], b[0]) : Integer.compare(a[2], b[2]));
 
-		System.out.println(str(l));
-		for (int i = 0; i < 100; i++) {
-			lRest.add(in.nextInt());
-		}
-		Collections.sort(lRest);
-		List<Integer> lFirst = new ArrayList<>();
-		int diff = 0;
-		for (int i = 0; i < 170; i += 2) {
-			diff += lRest.get(i + 1) - lRest.get(i);
-			lFirst.add(lRest.get(i + 1));
-		}
-//		System.err.println(diff);
-		int total = (1 << 30) - 1;
-		int pick = (total - diff) >> 1;
-		for (int i = 0; i < 30; i++) {
-			if (((pick >> i) & 1) != 0) {
-				lFirst.add(1 << i);
+		for (int[] e : events) {
+			switch (e[2]) {
+			case 1:
+				tm.put(new int[] { e[3], e[4] }, e[1]);
+				break;
+			case 2:
+				tm.remove(new int[] { e[0], e[4] });
+				break;
+			case 3:
+				int demand = u;
+				while (demand > 0 && !tm.isEmpty()) {
+					Entry<int[], Integer> entry = tm.pollFirstEntry();
+					int diff = Math.min(demand, entry.getValue());
+					demand -= diff;
+					if (entry.getValue() > diff) {
+						tm.put(entry.getKey(), entry.getValue() - diff);
+					}
+				}
+				if (demand > 0) {
+					return e[3];
+				}
+				break;
 			}
 		}
-		System.out.println(str(lFirst));
-//		System.err.println(str(lFirst));
-	}
-
-	static int[] ask(String action, int x) {
-
-		System.out.println(action + " " + x);
-		if (action.equals("E")) {
-			return new int[0];
-		}
-		return getIntArr(in, 2);
+		return orders.length;
 	}
 
 	private static void test() {
@@ -183,29 +193,24 @@ public class Solution {
 		}
 	}
 
-	static private List<Integer>[] buildAdj(int n, int[][] edges, boolean biDirectional) {
-		List<Integer>[] ans = new List[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = new ArrayList<>();
-		}
-		for (int i = 0; i < edges.length; i++) {
-			ans[edges[i][0]].add(i);
-			if (biDirectional) {
-				ans[edges[i][1]].add(i);
+	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
+		Map<Integer, List<Integer>> edges = new HashMap<>();
+		for (int i = 0; i < size; i++) {
+			int from = in.nextInt();
+			int to = in.nextInt();
+			if (!edges.containsKey(from)) {
+				edges.put(from, new ArrayList<Integer>());
 			}
-		}
-		return ans;
-	}
+			edges.get(from).add(to);
+			if (!directed) {
+				if (!edges.containsKey(to)) {
+					edges.put(to, new ArrayList<Integer>());
+				}
+				edges.get(to).add(from);
+			}
 
-	static private List<Integer>[] buildRootedTree(int n, int[] edges) {
-		List<Integer>[] ans = new List[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = new ArrayList<>();
 		}
-		for (int i = 0; i < edges.length; i++) {
-			ans[edges[i]].add(i);
-		}
-		return ans;
+		return edges;
 	}
 
 }

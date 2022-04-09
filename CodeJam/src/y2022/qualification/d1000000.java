@@ -1,77 +1,44 @@
+package y2022.qualification;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
-public class Solution {
+public class d1000000 {
 	public static void main(String[] args) {
 		solve();
 	}
 
-	static Scanner in;
-
 	private static void solve() {
-		in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			solve(n);
+			int[] dices = getIntArr(in, n);
+			int r = solve(n, dices);
+			System.out.println("Case #" + i + ": " + r);
 		}
 		in.close();
 	}
 
-	private static void solve(int n) {
-		List<Integer> l = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			l.add(1 << i);
-		}
-		// put arbitrary 70 numbers
-		List<Integer> lRest = new ArrayList<>();
-		for (int i = (1 << 29) - 1; i >= (1 << 29) - 70; i -= 1) {
-			lRest.add(i);
-			l.add(i);
-		}
-
-		System.out.println(str(l));
-		for (int i = 0; i < 100; i++) {
-			lRest.add(in.nextInt());
-		}
-		Collections.sort(lRest);
-		List<Integer> lFirst = new ArrayList<>();
-		int diff = 0;
-		for (int i = 0; i < 170; i += 2) {
-			diff += lRest.get(i + 1) - lRest.get(i);
-			lFirst.add(lRest.get(i + 1));
-		}
-//		System.err.println(diff);
-		int total = (1 << 30) - 1;
-		int pick = (total - diff) >> 1;
-		for (int i = 0; i < 30; i++) {
-			if (((pick >> i) & 1) != 0) {
-				lFirst.add(1 << i);
+	private static int solve(int n, int[] dices) {
+		Arrays.sort(dices);
+		int cnt = 0;
+		for (int x : dices) {
+			if (x >= cnt + 1) {
+				cnt++;
 			}
 		}
-		System.out.println(str(lFirst));
-//		System.err.println(str(lFirst));
+		return cnt;
 	}
 
-	static int[] ask(String action, int x) {
-
-		System.out.println(action + " " + x);
-		if (action.equals("E")) {
-			return new int[0];
-		}
-		return getIntArr(in, 2);
-	}
-
-	private static void test() {
-		for (int i = 0; i < 10000; i++) {
-			testOnce();
-		}
-	}
+	static Map<Integer, Set<Integer>> m;
 
 	private static void testOnce() {
 		Random r = new Random();
@@ -183,29 +150,24 @@ public class Solution {
 		}
 	}
 
-	static private List<Integer>[] buildAdj(int n, int[][] edges, boolean biDirectional) {
-		List<Integer>[] ans = new List[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = new ArrayList<>();
-		}
-		for (int i = 0; i < edges.length; i++) {
-			ans[edges[i][0]].add(i);
-			if (biDirectional) {
-				ans[edges[i][1]].add(i);
+	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
+		Map<Integer, List<Integer>> edges = new HashMap<>();
+		for (int i = 0; i < size; i++) {
+			int from = in.nextInt();
+			int to = in.nextInt();
+			if (!edges.containsKey(from)) {
+				edges.put(from, new ArrayList<Integer>());
 			}
-		}
-		return ans;
-	}
+			edges.get(from).add(to);
+			if (!directed) {
+				if (!edges.containsKey(to)) {
+					edges.put(to, new ArrayList<Integer>());
+				}
+				edges.get(to).add(from);
+			}
 
-	static private List<Integer>[] buildRootedTree(int n, int[] edges) {
-		List<Integer>[] ans = new List[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = new ArrayList<>();
 		}
-		for (int i = 0; i < edges.length; i++) {
-			ans[edges[i]].add(i);
-		}
-		return ans;
+		return edges;
 	}
 
 }

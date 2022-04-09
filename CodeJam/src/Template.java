@@ -1,9 +1,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -140,24 +138,29 @@ public class Template {
 		}
 	}
 
-	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
-		Map<Integer, List<Integer>> edges = new HashMap<>();
-		for (int i = 0; i < size; i++) {
-			int from = in.nextInt();
-			int to = in.nextInt();
-			if (!edges.containsKey(from)) {
-				edges.put(from, new ArrayList<Integer>());
-			}
-			edges.get(from).add(to);
-			if (!directed) {
-				if (!edges.containsKey(to)) {
-					edges.put(to, new ArrayList<Integer>());
-				}
-				edges.get(to).add(from);
-			}
-
+	static private List<Integer>[] buildAdj(int n, int[][] edges, boolean biDirectional) {
+		List<Integer>[] ans = new List[n];
+		for (int i = 0; i < n; i++) {
+			ans[i] = new ArrayList<>();
 		}
-		return edges;
+		for (int i = 0; i < edges.length; i++) {
+			ans[edges[i][0]].add(i);
+			if (biDirectional) {
+				ans[edges[i][1]].add(i);
+			}
+		}
+		return ans;
+	}
+
+	static private List<Integer>[] buildRootedTree(int n, int[] edges) {
+		List<Integer>[] ans = new List[n];
+		for (int i = 0; i < n; i++) {
+			ans[i] = new ArrayList<>();
+		}
+		for (int i = 0; i < edges.length; i++) {
+			ans[edges[i]].add(i);
+		}
+		return ans;
 	}
 
 }
