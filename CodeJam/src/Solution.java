@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -11,60 +10,46 @@ public class Solution {
 		solve();
 	}
 
-	static Scanner in;
-
 	private static void solve() {
-		in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
 		int t = in.nextInt();
 		for (int i = 1; i <= t; ++i) {
 			int n = in.nextInt();
-			solve(n);
+			int k = in.nextInt();
+			int[] nums = getIntArr(in, n);
+			Long r = solve(n, nums);
+			System.out.println("Case #" + i + ": " + (r == null ? "IMPOSSIBLE" : "" + r));
 		}
 		in.close();
 	}
 
-	private static void solve(int n) {
-		List<Integer> l = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			l.add(1 << i);
+	private static Long solve(int n, int[] nums) {
+		long sum = 0;
+		long sum2 = 0;
+		for (int x : nums) {
+			sum += x;
+			sum2 += x * x;
 		}
-		// put arbitrary 70 numbers
-		List<Integer> lRest = new ArrayList<>();
-		for (int i = (1 << 29) - 1; i >= (1 << 29) - 70; i -= 1) {
-			lRest.add(i);
-			l.add(i);
-		}
-
-		System.out.println(str(l));
-		for (int i = 0; i < 100; i++) {
-			lRest.add(in.nextInt());
-		}
-		Collections.sort(lRest);
-		List<Integer> lFirst = new ArrayList<>();
-		int diff = 0;
-		for (int i = 0; i < 170; i += 2) {
-			diff += lRest.get(i + 1) - lRest.get(i);
-			lFirst.add(lRest.get(i + 1));
-		}
-//		System.err.println(diff);
-		int total = (1 << 30) - 1;
-		int pick = (total - diff) >> 1;
-		for (int i = 0; i < 30; i++) {
-			if (((pick >> i) & 1) != 0) {
-				lFirst.add(1 << i);
+		if (sum != 0) {
+			return (sum2 - sum * sum) / sum / 2;
+		} else {
+			if (sum2 == 0) {
+				return 0L;
+			} else {
+				return null;
 			}
 		}
-		System.out.println(str(lFirst));
-//		System.err.println(str(lFirst));
+
 	}
 
-	static int[] ask(String action, int x) {
+	private static boolean isSame(String s) {
 
-		System.out.println(action + " " + x);
-		if (action.equals("E")) {
-			return new int[0];
+		for (char c : s.toCharArray()) {
+			if (c != s.charAt(0)) {
+				return false;
+			}
 		}
-		return getIntArr(in, 2);
+		return true;
 	}
 
 	private static void test() {

@@ -1,3 +1,4 @@
+package y2022.r1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,24 +9,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class template {
+public class WateringWell implements Runnable {
+
 	public static void main(String[] args) throws FileNotFoundException {
+//		new Thread(null, new Solution(), "Solution", 1L << 32).start();
+		new WateringWell().run();
+	}
+
+	public void run() {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
 				int n = in.nextInt();
-				int k = in.nextInt();
-				int v = in.nextInt();
-				String[] a = getLineArr(in, n);
-				int r = 0;
+				int[][] a = getIntArr(in, n, 2);
+				int q = in.nextInt();
+				int[][] b = getIntArr(in, q, 2);
+				long r = solve(n, q, a, b);
 				out.println("Case #" + i + ": " + r);
 			}
-
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
 	}
 
-	static long mod = 1000000007;
+	private long solve(int n, int q, int[][] a, int[][] b) {
+		return (solveAxis(n, q, a, b, 0) + solveAxis(n, q, a, b, 1)) % mod;
+	}
+
+	long solveAxis(int n, int q, int[][] a, int[][] b, int axis) {
+		long sumA = 0;
+		long sumB = 0;
+		long sumA2 = 0;
+		long sumB2 = 0;
+		long ret = 0;
+		for (int[] x : a) {
+			sumA = add(sumA, x[axis]);
+			sumA2 = add(sumA2, mul(x[axis], x[axis]));
+
+		}
+		for (int[] x : b) {
+			sumB = add(sumB, x[axis]);
+			sumB2 = add(sumB2, mul(x[axis], x[axis]));
+		}
+		ret = add(ret, mul(sumA2, q));
+		ret = add(ret, mul(sumB2, n));
+		long mul = mul(mul(2, sumA), sumB);
+		ret = add(ret, -mul);
+		return ret;
+	}
+
+	final static long mod = 1000000007;
 
 	static long add(long a, long b) {
 		long r = a + b;
@@ -51,10 +85,10 @@ public class template {
 		}
 	}
 
-	static String str(List<Integer> a) {
+	static String str(List<String> a) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.size(); i++) {
-			sb.append(a.get(i) + " ");
+			sb.append(a.get(i) + "\n");
 		}
 		return sb.toString();
 	}
@@ -112,10 +146,10 @@ public class template {
 		return arr;
 	}
 
-	static String[] getStringArr(Scanner in, int size) {
-		String[] arr = new String[size];
+	static char[][] getStringArr(Scanner in, int size) {
+		char[][] arr = new char[size][];
 		for (int i = 0; i < size; i++) {
-			arr[i] = in.next();
+			arr[i] = in.next().toCharArray();
 		}
 		return arr;
 	}

@@ -1,3 +1,4 @@
+package y2022.r2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,83 +7,84 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.TreeMap;
 
-public class ValetParking1 implements Runnable {
-
+public class PerfectBalanced {
 	public static void main(String[] args) throws FileNotFoundException {
-//		new Thread(null, new Solution(), "Solution", 1L << 32).start();
-		new ValetParking1().run();
-	}
-
-	public void run() {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
+				String s = in.next();
 				int n = in.nextInt();
-				int m = in.nextInt();
-				int k = in.nextInt();
-				String[] board = getStringArr(in, n);
-				int r = solve(board, n, m, k);
+				int[][] q = getIntArr(in, n, 2);
+				int r = solve(s, n, q);
 				out.println("Case #" + i + ": " + r);
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
+
 	}
 
-	private int solve(String[] board, int n, int m, int k) {
-		int ret = solveUp(board, n, m, k);
-		reverse(board);
-		return Math.min(solveUp(board, n, m, n + 1 - k), ret);
-	}
-
-	private void reverse(String[] board) {
-		int i = 0;
-		int j = board.length - 1;
-		while (i < j) {
-			String t = board[i];
-			board[i] = board[j];
-			board[j] = t;
-			i++;
-			j--;
+	private static int solve(String s, int n, int[][] q) {
+		TreeMap<Integer, Integer>[] index = new TreeMap[26];
+		for (int i = 0; i < index.length; i++) {
+			index[i] = new TreeMap<>();
 		}
-	}
-
-	private int solveUp(String[] board, int n, int m, int k) {
-		int ret = n * m;
-		int[][] cntBefore = new int[n + 1][m];
-		for (int i = 1; i <= n; i++) {
-			for (int j = 0; j < m; j++) {
-				cntBefore[i][j] = cntBefore[i - 1][j];
-				if (board[i - 1].charAt(j) == 'X') {
-					cntBefore[i][j]++;
+		for (int i = 0; i < s.length(); i++) {
+			index[s.charAt(i) - 'a'].put(i, index[s.charAt(i) - 'a'].size() + 1);
+		}
+		int ans = 0;
+		for (int[] a : q) {
+			if (a[1] == a[0]) {
+				ans++;
+			} else if ((a[1] - a[0]) % 2 == 0) {
+				a[0]--;
+				a[1]--;
+				int[] cntL = getCount(index, a[0], a[0] + (a[1] - a[0]) / 2 - 1);
+				int[] cntR = getCount(index, a[0] + (a[1] - a[0]) / 2 + 1, a[1]);
+				cntL[s.charAt(a[0] + (a[1] - a[0]) / 2) - 'a']++;
+				if (diff(cntL, cntR) == 1) {
+					ans++;
+					continue;
 				}
-			}
-		}
-		for (int i = k; i <= n; i++) {
-			int move = i - k;
-			for (int j = 0; j < m; j++) {
-				if (cntBefore[i][j] >= k) {
-					move++;
-				} else if (board[i - 1].charAt(j) == 'X') {
-					move++;
+				cntL[s.charAt(a[0] + (a[1] - a[0]) / 2) - 'a']--;
+				cntR[s.charAt(a[0] + (a[1] - a[0]) / 2) - 'a']++;
+				if (diff(cntL, cntR) == 1) {
+					ans++;
 				}
-			}
-			ret = Math.min(ret, move);
-		}
-		int move = n + 1 - k;
-		for (int j = 0; j < m; j++) {
-			if (cntBefore[n][j] >= k) {
-				move++;
+				cntR[s.charAt(a[0] + (a[1] - a[0]) / 2) - 'a']--;
 			}
 		}
-		ret = Math.min(ret, move);
+		return ans;
+	}
+
+	static int count(TreeMap<Integer, Integer> pos, int l, int r) {
+		Entry<Integer, Integer> rEntry = pos.floorEntry(r);
+		Entry<Integer, Integer> lEntry = pos.floorEntry(l - 1);
+		int ub = (rEntry == null) ? 0 : rEntry.getValue();
+		int lb = (lEntry == null) ? 0 : lEntry.getValue();
+		return ub - lb;
+	}
+
+	static int[] getCount(TreeMap<Integer, Integer>[] index, int l, int r) {
+		int[] cnt = new int[26];
+		for (int i = 0; i < 26; i++) {
+			cnt[i] = count(index[i], l, r);
+		}
+		return cnt;
+	}
+
+	static int diff(int[] a, int[] b) {
+		int ret = 0;
+		for (int i = 0; i < a.length; i++) {
+			ret += Math.abs(a[i] - b[i]);
+		}
 		return ret;
 	}
 
-	final static long mod = 1000000007;
+	static long mod = 1000000007;
 
 	static long add(long a, long b) {
 		long r = a + b;
@@ -93,7 +95,11 @@ public class ValetParking1 implements Runnable {
 	}
 
 	static long mul(long a, long b) {
-		return (a * b) % mod;
+		long r = a * b;
+		while (r < 0) {
+			r += mod;
+		}
+		return r % mod;
 	}
 
 	static int gcd(int a, int b) {

@@ -1,3 +1,4 @@
+package y2022.qualification;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,24 +9,44 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class template {
+public class SeconadHands implements Runnable {
+
 	public static void main(String[] args) throws FileNotFoundException {
+//		new Thread(null, new Solution(), "Solution", 1L << 32).start();
+		new SeconadHands().run();
+	}
+
+	public void run() {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
 				int n = in.nextInt();
 				int k = in.nextInt();
-				int v = in.nextInt();
-				String[] a = getLineArr(in, n);
-				int r = 0;
-				out.println("Case #" + i + ": " + r);
+				int[] parts = getIntArr(in, n);
+				boolean r = solve(n, k, parts);
+				out.println("Case #" + i + ": " + (r ? "YES" : "NO"));
 			}
-
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
 	}
 
-	static long mod = 1000000007;
+	private boolean solve(int n, int k, int[] parts) {
+		if (parts.length > 2 * k) {
+			return false;
+		}
+		int[] cnt = new int[101];
+		for (int p : parts) {
+			cnt[p]++;
+			if (cnt[p] > 2) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	final static long mod = 1000000007;
 
 	static long add(long a, long b) {
 		long r = a + b;
@@ -36,11 +57,7 @@ public class template {
 	}
 
 	static long mul(long a, long b) {
-		long r = a * b;
-		while (r < 0) {
-			r += mod;
-		}
-		return r % mod;
+		return (a * b) % mod;
 	}
 
 	static int gcd(int a, int b) {
@@ -112,10 +129,10 @@ public class template {
 		return arr;
 	}
 
-	static String[] getStringArr(Scanner in, int size) {
-		String[] arr = new String[size];
+	static char[][] getStringArr(Scanner in, int size) {
+		char[][] arr = new char[size][];
 		for (int i = 0; i < size; i++) {
-			arr[i] = in.next();
+			arr[i] = in.next().toCharArray();
 		}
 		return arr;
 	}
