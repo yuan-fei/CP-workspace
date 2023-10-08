@@ -1,3 +1,4 @@
+package y2023.r1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 
-public class Solution {
+public class TodayIsGonnaBeAGreatDay {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
