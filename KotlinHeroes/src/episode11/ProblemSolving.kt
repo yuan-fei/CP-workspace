@@ -1,4 +1,4 @@
-import java.lang.Math.abs
+package episode11
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -49,7 +49,7 @@ private fun isWhiteSpace(c: Char) = c in " \r\n\t"
 
 // JVM-only targeting code follows next
 
-// episode3.readString() via sequence is still slightly faster than Scanner
+// episode3.episode11.readString() via sequence is still slightly faster than Scanner
 private fun readString() = generateSequence { System.`in`.read().toChar() }
     .dropWhile { isWhiteSpace(it) }.takeWhile { !isWhiteSpace(it) }.joinToString("")
 
@@ -90,49 +90,19 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-//    val q = readlnInt()
-//
-//    repeat(q){
-//        val s = readln()
-//        println(solve(s))
-//    }
-solve("R")
+    val q = readlnInt()
 
-}
-
-private fun solve(s: String): Long {
-    return seq.minOf { c -> cal(s, c) }
-}
-
-val seq = arrayOf('R', 'P', 'S')
-fun cal(s: String, init:Char): Long{
-    var ret = 0L
-    var v = diff(init, 'R')
-    ret++
-    if(diff(init, s.first()) != -1) {
-        v += diff(getPrev(s.first()), getNext(init))
-        ret++
+    repeat(q){
+        val n = readlnInt()
+        val arr = readlnInts()
+        println(solve(n, arr))
     }
 
-    for(i in 0 until s.length - 1){
-        v += diff(getPrev(s[i + 1]), s[i])
-        ret++
-    }
 
-    ret += kotlin.math.abs(minOf(ret, 0)) + 1
-    return ret
 }
 
-fun getNext(a: Char) = seq[(seq.indexOf(a) + 1) % 3]
-fun getPrev(a: Char) = seq[(seq.indexOf(a) + 2) % 3]
-fun diff(a: Char, b: Char): Int{
-    return when("" + a + b){
-        "PS" -> -1
-        "SR" -> -1
-        "RP" -> -1
-        "SP" -> 1
-        "RS" -> 1
-        "PR" -> 1
-        else -> -1
-    }
+fun solve(n: Int, arr: List<Int>): String {
+    val max = arr.subList(0, n - 1).max()
+    return if (max == arr.last() - 1) "" + max else "Ambiguous"
 }
+

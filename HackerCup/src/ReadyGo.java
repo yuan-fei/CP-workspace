@@ -8,192 +8,84 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class ReadyGo {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
 				int n = in.nextInt();
-				int[] a = getIntArr(in, n);
-				int[] b = getIntArr(in, n);
-				int r = solve(n, a, b);
-				out.println("Case #" + i + ": " + r);
+				int m = in.nextInt();
+				char[][] board = getCharArr(in, n, m);
+				int r = solve(n, m, board);
+				out.println("Case #" + i + ": " + ((r > 0) ? "YES" : "NO"));
+//				out.println("Case #" + i + ": " + r);
 			}
 
 		}
 
 	}
 
-	private static int solve(int n, int[] a, int[] b) {
-		return (n % 2 == 0) ? solveEven(n, a, b) : solveOdd(n, a, b);
-	}
+	static char[][] board;
+	static int n;
+	static int m;
 
-	static int solveEven(int n, int[] a, int[] b) {
-		int ans = 0;
-		int xid = findTheOnlyEquivalent(ans, a, b);
-		if (xid != -1) {
-			return -1;
-		}
-		int lDiff = 0;
-		int rDiff = 0;
-		int turnCnt = 0;
+	private static int solve(int n, int m, char[][] board) {
+		ReadyGo.board = board;
+		ReadyGo.n = n;
+		ReadyGo.m = m;
+		int res = 0;
 		for (int i = 0; i < n; i++) {
-			if (i > 0 && ((a[i] < b[i] && a[i - 1] > b[i - 1]) || (a[i] > b[i] && a[i - 1] < b[i - 1]))) {
-				turnCnt++;
-				if (turnCnt > 2) {
-					return -1;
+			for (int j = 0; j < m; j++) {
+				if (board[i][j] == '.') {
+					board[i][j] = 'B';
+					int r = bfs();
+					res = Math.max(r, res);
+					board[i][j] = '.';
 				}
 			}
-			if (i < n / 2) {
-				lDiff += getDiff(a, b, i);
-			} else {
-				rDiff += getDiff(a, b, i);
-			}
 		}
-		int step = -1;
+		return res;
+	}
+
+	static int bfs() {
+		boolean[][] seen = new boolean[n][m];
+		int ret = 0;
 		for (int i = 0; i < n; i++) {
-			if (lDiff == -n / 2 && rDiff == n / 2) {
-				step = i;
-				break;
-			}
-			int x = getDiff(a, b, i);
-			int y = getDiff(a, b, (i + n / 2) % n);
-			if (i >= n / 2) {
-				y = -y;
-			}
-			lDiff += y - x;
-			rDiff += -x - y;
-		}
-
-		if (step == -1 && lDiff == -n / 2 && rDiff == n / 2) {
-			step = n;
-		}
-		if (step == -1) {
-			return -1;
-		}
-		shiftLeft(a, b, step);
-		ans += step;
-		if (check(n, a, b)) {
-			return ans;
-		}
-		return -1;
-	}
-
-	private static int getDiff(int[] a, int[] b, int i) {
-		return (a[i] < b[i]) ? -1 : 1;
-	}
-
-	static int solveOdd(int n, int[] a, int[] b) {
-		int ans = 0;
-		int id = findTheOnlyEquivalent(n, a, b);
-		if (id == -1) {
-			return -1;
-		}
-		int step = 0;
-		if (id >= n / 2) {
-			step = id - n / 2;
-		} else {
-			step = id + n / 2 + 1;
-		}
-		shiftLeft(a, b, step);
-		ans += step;
-		if (a[n / 2 - 1] > b[n / 2 - 1]) {
-			shiftLeft(a, b, n);
-			ans += n;
-		}
-		if (check(n, a, b)) {
-			return ans;
-		}
-		return -1;
-	}
-
-	private static boolean check(int n, int[] a, int[] b) {
-		if (!checkOrder(n, a, b)) {
-			return false;
-		}
-
-		return checkValue(n, a, b);
-	}
-
-	private static boolean checkValue(int n, int[] a, int[] b) {
-		int i = 0;
-		int j = n - 1;
-		while (i < j) {
-			if (a[i] - b[i] != b[j] - a[j] || a[i] != b[j]) {
-				return false;
-			}
-			i++;
-			j--;
-		}
-		return true;
-	}
-
-	private static boolean checkOrder(int n, int[] a, int[] b) {
-		for (int i = 0; i < n; i++) {
-			if (n % 2 == 1 && i == n / 2) {
-				if (a[i] != b[i]) {
-					return false;
-				}
-			}
-			if (i < n / 2) {
-				if (a[i] > b[i]) {
-					return false;
-				}
-			} else {
-				if (a[i] < b[i]) {
-					return false;
+			for (int j = 0; j < m; j++) {
+				if (!seen[i][j] && board[i][j] == 'W') {
+					int t = dfs(new int[] { i, j }, seen);
+					ret += t;
 				}
 			}
 		}
-		return true;
+		return ret;
 	}
 
-	static void shiftLeft(int[] a, int[] b, int x) {
-		reverseSingle(a, x);
-		reverseSingle(b, x);
-		for (int i = 0; i < x; i++) {
-			swap(a, b, a.length - i - 1);
-		}
-	}
-
-	private static void reverseSingle(int[] a, int x) {
-		reverse(a, 0, x - 1);
-		reverse(a, x, a.length - 1);
-		reverse(a, 0, a.length - 1);
-	}
-
-	static void reverse(int[] a, int start, int end) {
-		int i = start;
-		int j = end;
-		while (i < j) {
-			swap(a, i++, j--);
-		}
-	}
-
-	static void swap(int[] a, int i, int j) {
-		int t = a[i];
-		a[i] = a[j];
-		a[j] = t;
-	}
-
-	static void swap(int[] a, int[] b, int i) {
-		int t = a[i];
-		a[i] = b[i];
-		b[i] = t;
-	}
-
-	private static int findTheOnlyEquivalent(int n, int[] a, int[] b) {
-		int ans = -1;
-		for (int i = 0; i < n; i++) {
-			if (a[i] == b[i]) {
-				if (ans == -1) {
-					ans = i;
-				} else {
-					return -1;
+	private static int dfs(int[] cur, boolean[][] seen) {
+		int ret = 0;
+		seen[cur[0]][cur[1]] = true;
+		boolean invalid = false;
+		for (int[] d : dirs) {
+			int[] nxt = new int[] { cur[0] + d[0], cur[1] + d[1] };
+			if (0 <= nxt[0] && nxt[0] < n && 0 <= nxt[1] && nxt[1] < m && !seen[nxt[0]][nxt[1]]) {
+				switch (board[nxt[0]][nxt[1]]) {
+				case '.':
+					invalid = true;
+					break;
+				case 'B':
+					break;
+				case 'W':
+					int r = dfs(nxt, seen);
+					if (r == 0) {
+						invalid = true;
+					}
+					ret += r;
+					break;
 				}
+
 			}
 		}
-		return ans;
+		return invalid ? 0 : ret + 1;
 	}
 
 	static int[][] dirs = { { 0, 1 }, { 1, 0 }, { -1, 0 }, { 0, -1 } };

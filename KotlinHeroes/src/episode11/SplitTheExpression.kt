@@ -1,4 +1,5 @@
-import java.lang.Math.abs
+package episode11
+import java.lang.Long.max
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -90,49 +91,34 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-//    val q = readlnInt()
-//
-//    repeat(q){
-//        val s = readln()
-//        println(solve(s))
-//    }
-solve("R")
+    val q = readlnInt()
+
+    repeat(q){
+        val s = readln()
+        println(solve(s))
+    }
+
 
 }
 
-private fun solve(s: String): Long {
-    return seq.minOf { c -> cal(s, c) }
-}
-
-val seq = arrayOf('R', 'P', 'S')
-fun cal(s: String, init:Char): Long{
+fun solve(s: String): Long {
+    val numStrs = s.split('+')
     var ret = 0L
-    var v = diff(init, 'R')
-    ret++
-    if(diff(init, s.first()) != -1) {
-        v += diff(getPrev(s.first()), getNext(init))
-        ret++
-    }
+    for ( (i, nStr) in numStrs.withIndex()){
+        if(i == 0 || i == numStrs.size - 1){
+            ret += nStr.toLong()
+        }
+        else{
+            val total = nStr.toLong()
+            var m = 0L
+            var base = 10L
+            for (j in (1 until nStr.length)){
+                m = max(m, total % base + total / base)
+                base *= 10
+            }
+            ret += m
 
-    for(i in 0 until s.length - 1){
-        v += diff(getPrev(s[i + 1]), s[i])
-        ret++
+        }
     }
-
-    ret += kotlin.math.abs(minOf(ret, 0)) + 1
     return ret
-}
-
-fun getNext(a: Char) = seq[(seq.indexOf(a) + 1) % 3]
-fun getPrev(a: Char) = seq[(seq.indexOf(a) + 2) % 3]
-fun diff(a: Char, b: Char): Int{
-    return when("" + a + b){
-        "PS" -> -1
-        "SR" -> -1
-        "RP" -> -1
-        "SP" -> 1
-        "RS" -> 1
-        "PR" -> 1
-        else -> -1
-    }
 }

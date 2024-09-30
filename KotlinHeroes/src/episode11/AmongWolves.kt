@@ -1,4 +1,6 @@
-import java.lang.Math.abs
+package episode11
+
+import java.lang.Long.max
 
 // https://kotlinlang.org/docs/tutorials/competitive-programming.html
 // https://stackoverflow.com/questions/41283393/reading-console-input-in-kotlin
@@ -90,49 +92,65 @@ private fun printStringArray(a: Array<String>) {
 }
 
 private fun main() {
-//    val q = readlnInt()
-//
-//    repeat(q){
-//        val s = readln()
-//        println(solve(s))
-//    }
-solve("R")
+    val q = readlnInt()
+
+    repeat(q){
+        val (n, h, b) = readlnInts()
+        val board = arrayOf(readln(), readln())
+        println(solve(n, h.toLong(), b.toLong(), board))
+    }
+
 
 }
 
-private fun solve(s: String): Long {
-    return seq.minOf { c -> cal(s, c) }
-}
-
-val seq = arrayOf('R', 'P', 'S')
-fun cal(s: String, init:Char): Long{
-    var ret = 0L
-    var v = diff(init, 'R')
-    ret++
-    if(diff(init, s.first()) != -1) {
-        v += diff(getPrev(s.first()), getNext(init))
-        ret++
+fun solve(n: Int, h: Long, b: Long, board: Array<String>): Long {
+    var posSheep = arrayOf(-1, -1)
+    for (i in board.indices){
+        for (j in board[0].indices){
+            if (board[i][j] == 'S'){
+                posSheep = arrayOf(i, j)
+            }
+        }
+    }
+    val cnts = arrayOf(arrayOf(0L, 0L, 0L),arrayOf(0L, 0L, 0L))
+    for (i in board.indices){
+        for (j in board[0].indices){
+            if (board[i][j] == 'W'){
+                if(j < posSheep[1]){
+                    cnts[i][0] = cnts[i][0] + h
+                }
+                else if(j == posSheep[1]){
+                    cnts[i][1] = cnts[i][1] + h
+                }
+                else{
+                    cnts[i][2] = cnts[i][2] + h
+                }
+            }
+        }
+    }
+    var ans = 0L
+    // kill adjacent wolves
+    if(board[1 - posSheep[0]][posSheep[1]] == 'W'){
+        cnts[1 - posSheep[0]][1] = cnts[1 - posSheep[0]][1] - h
+        ans += h
+    }
+    if(posSheep[1] - 1 >= 0 && board[posSheep[0]][posSheep[1] - 1] == 'W'){
+        cnts[posSheep[0]][0] = cnts[posSheep[0]][0] - h
+        ans += h
+    }
+    if(posSheep[1] + 1 < board[0].length && board[posSheep[0]][posSheep[1] + 1] == 'W'){
+        cnts[posSheep[0]][2] = cnts[posSheep[0]][2] - h
+        ans += h
+    }
+    // no wolves
+    if(cnts[0].contentEquals(arrayOf(0, 0, 0)) && cnts[1].contentEquals(arrayOf(0, 0, 0))){
+        return ans;
     }
 
-    for(i in 0 until s.length - 1){
-        v += diff(getPrev(s[i + 1]), s[i])
-        ret++
-    }
+    var blockOnly = (if (posSheep[1] > 0)  b else 0L) + b + (if (posSheep[1] < board[0].length - 1)  b else 0L)
+    var killLeft = cnts[0][0] + cnts[1][0] + b + (if (posSheep[1] < board[0].length - 1)  b else 0L)
+    var killRight = cnts[0][2] + cnts[1][2] +  (if (posSheep[1] > 0)  b else 0L) + b
+    var killAll = cnts[0][0] + cnts[1][0] + cnts[0][2] + cnts[1][2]
 
-    ret += kotlin.math.abs(minOf(ret, 0)) + 1
-    return ret
-}
-
-fun getNext(a: Char) = seq[(seq.indexOf(a) + 1) % 3]
-fun getPrev(a: Char) = seq[(seq.indexOf(a) + 2) % 3]
-fun diff(a: Char, b: Char): Int{
-    return when("" + a + b){
-        "PS" -> -1
-        "SR" -> -1
-        "RP" -> -1
-        "SP" -> 1
-        "RS" -> 1
-        "PR" -> 1
-        else -> -1
-    }
+    return ans + minOf<Long>(blockOnly, killLeft, killRight, killAll)
 }
