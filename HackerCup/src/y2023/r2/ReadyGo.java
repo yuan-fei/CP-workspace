@@ -1,3 +1,4 @@
+package y2023.r2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,31 +9,103 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class template {
+public class ReadyGo {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
 				int n = in.nextInt();
-				int k = in.nextInt();
-				int v = in.nextInt();
-				String[] a = getLineArr(in, n);
-				int r = 0;
-				out.println("Case #" + i + ": " + r);
+				int m = in.nextInt();
+				char[][] board = getCharArr(in, n, m);
+				int r = solve(n, m, board);
+				out.println("Case #" + i + ": " + ((r > 0) ? "YES" : "NO"));
+//				out.println("Case #" + i + ": " + r);
 			}
 
 		}
 
 	}
 
-	static long mod = 1000000007;
+	static char[][] board;
+	static int n;
+	static int m;
 
-	static long mAdd(long a, long b) {
-		return Math.floorMod(a + b, mod);
+	private static int solve(int n, int m, char[][] board) {
+		ReadyGo.board = board;
+		ReadyGo.n = n;
+		ReadyGo.m = m;
+		int res = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				if (board[i][j] == '.') {
+					board[i][j] = 'B';
+					int r = bfs();
+					res = Math.max(r, res);
+					board[i][j] = '.';
+				}
+			}
+		}
+		return res;
 	}
 
-	static long mMul(long a, long b) {
-		return Math.floorMod(a * b, mod);
+	static int bfs() {
+		boolean[][] seen = new boolean[n][m];
+		int ret = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				if (!seen[i][j] && board[i][j] == 'W') {
+					int t = dfs(new int[] { i, j }, seen);
+					ret += t;
+				}
+			}
+		}
+		return ret;
+	}
+
+	private static int dfs(int[] cur, boolean[][] seen) {
+		int ret = 0;
+		seen[cur[0]][cur[1]] = true;
+		boolean invalid = false;
+		for (int[] d : dirs) {
+			int[] nxt = new int[] { cur[0] + d[0], cur[1] + d[1] };
+			if (0 <= nxt[0] && nxt[0] < n && 0 <= nxt[1] && nxt[1] < m && !seen[nxt[0]][nxt[1]]) {
+				switch (board[nxt[0]][nxt[1]]) {
+				case '.':
+					invalid = true;
+					break;
+				case 'B':
+					break;
+				case 'W':
+					int r = dfs(nxt, seen);
+					if (r == 0) {
+						invalid = true;
+					}
+					ret += r;
+					break;
+				}
+
+			}
+		}
+		return invalid ? 0 : ret + 1;
+	}
+
+	static int[][] dirs = { { 0, 1 }, { 1, 0 }, { -1, 0 }, { 0, -1 } };
+	static long MOD = 1000000007;
+
+	static long add(long a, long b) {
+		long r = a + b;
+		if (r < 0) {
+			r += MOD;
+		}
+		return r % MOD;
+	}
+
+	static long mul(long a, long b) {
+		long r = a * b;
+		while (r < 0) {
+			r += MOD;
+		}
+		return r % MOD;
 	}
 
 	static int gcd(int a, int b) {
@@ -96,6 +169,15 @@ public class template {
 		return arr;
 	}
 
+	static char[][] getCharArr(Scanner in, int row, int col) {
+		char[][] arr = new char[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = in.next().toCharArray();
+		}
+
+		return arr;
+	}
+
 	static String[] getLineArr(Scanner in, int size) {
 		String[] arr = new String[size];
 		for (int i = 0; i < size; i++) {
@@ -132,87 +214,11 @@ public class template {
 		return edges;
 	}
 
-	/** graph */
-	static List<Integer>[] buildAdj(int n, int[][] edges, boolean directed) {
-		@SuppressWarnings("unchecked")
-		List<Integer>[] adj = new List[n];
-		for (int i = 0; i < adj.length; i++) {
-			adj[i] = new ArrayList<>();
-		}
-		for (int[] e : edges) {
-			adj[e[0]].add(e[1]);
-			if (!directed) {
-				adj[e[1]].add(e[0]);
-			}
-		}
-		return adj;
-	}
-
-	static List<Integer>[] buildAdjWithEdgeIndex(int n, int[][] edges, boolean directed) {
-		@SuppressWarnings("unchecked")
-		List<Integer>[] adj = new List[n];
-		for (int i = 0; i < adj.length; i++) {
-			adj[i] = new ArrayList<>();
-		}
-		for (int i = 0; i < edges.length; i++) {
-			int[] e = edges[i];
-			adj[e[0]].add(i);
-			if (!directed) {
-				adj[e[1]].add(i);
-			}
-		}
-		return adj;
-	}
-
-	private static class DSU {
-		int[] parent;
-
-		public DSU(int N) {
-			this.parent = new int[N];
-			for (int i = 0; i < N; i++) {
-				add(i);
-			}
-		}
-
-		public void add(int x) {
-			parent[x] = x;
-		}
-
-		public int find(int x) {
-			if (parent[x] != x)
-				parent[x] = find(parent[x]);
-			return parent[x];
-		}
-
-		public void union(int x, int y) {
-			if (find(x) != find(y)) {
-				parent[find(x)] = parent[find(y)];
-			}
-		}
-	}
-
 	static void set(int[][] a, int v) {
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
 				a[i][j] = v;
 			}
-		}
-	}
-
-	static void swap(int[] a, int i, int j) {
-		int t = a[i];
-		a[i] = a[j];
-		a[j] = t;
-	}
-
-	static <K> void inc(Map<K, Integer> m, K k) {
-		m.put(k, m.getOrDefault(k, 0) + 1);
-	}
-
-	static <K> void dec(Map<K, Integer> m, K k) {
-		m.put(k, m.getOrDefault(k, 0) - 1);
-		if (m.get(k) <= 0) {
-			m.remove(k);
 		}
 	}
 }

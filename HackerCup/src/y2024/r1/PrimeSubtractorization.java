@@ -1,110 +1,92 @@
+package y2024.r1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
-public class ReadyGo {
+public class PrimeSubtractorization {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
 				int n = in.nextInt();
-				int m = in.nextInt();
-				char[][] board = getCharArr(in, n, m);
-				int r = solve(n, m, board);
-				out.println("Case #" + i + ": " + ((r > 0) ? "YES" : "NO"));
-//				out.println("Case #" + i + ": " + r);
+				int r = solve(n);
+				out.println("Case #" + i + ": " + r);
 			}
 
 		}
 
 	}
 
-	static char[][] board;
-	static int n;
-	static int m;
+	static int MAX = 10000000;
+	static List<Integer> subtractorizations;
 
-	private static int solve(int n, int m, char[][] board) {
-		ReadyGo.board = board;
-		ReadyGo.n = n;
-		ReadyGo.m = m;
-		int res = 0;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				if (board[i][j] == '.') {
-					board[i][j] = 'B';
-					int r = bfs();
-					res = Math.max(r, res);
-					board[i][j] = '.';
-				}
-			}
+	private static int solve(int n) {
+		if (subtractorizations == null) {
+			subtractorizations = getSubtractorizations(MAX);
 		}
-		return res;
+		int idx = Collections.binarySearch(subtractorizations, n - 2);
+		if (idx < 0) {
+			idx = -idx - 1;
+		} else {
+			idx++;
+		}
+		return idx;
 	}
 
-	static int bfs() {
-		boolean[][] seen = new boolean[n][m];
-		int ret = 0;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				if (!seen[i][j] && board[i][j] == 'W') {
-					int t = dfs(new int[] { i, j }, seen);
-					ret += t;
-				}
+	private static List<Integer> getSubtractorizations(int n) {
+		List<Integer> primes = linearSieve(n);
+		Set<Integer> primeSet = new HashSet<>(primes);
+		List<Integer> subtractorizations = new ArrayList<>();
+		for (int p : primes) {
+			if (p == 2 || primeSet.contains(p + 2)) {
+				subtractorizations.add(p);
 			}
 		}
-		return ret;
+		return subtractorizations;
 	}
 
-	private static int dfs(int[] cur, boolean[][] seen) {
-		int ret = 0;
-		seen[cur[0]][cur[1]] = true;
-		boolean invalid = false;
-		for (int[] d : dirs) {
-			int[] nxt = new int[] { cur[0] + d[0], cur[1] + d[1] };
-			if (0 <= nxt[0] && nxt[0] < n && 0 <= nxt[1] && nxt[1] < m && !seen[nxt[0]][nxt[1]]) {
-				switch (board[nxt[0]][nxt[1]]) {
-				case '.':
-					invalid = true;
-					break;
-				case 'B':
-					break;
-				case 'W':
-					int r = dfs(nxt, seen);
-					if (r == 0) {
-						invalid = true;
-					}
-					ret += r;
+	private static List<Integer> linearSieve(int n) {
+		List<Integer> primes = new ArrayList<>();
+		boolean[] isComposite = new boolean[n + 1];
+		for (int i = 2; i <= n; i++) {
+			if (!isComposite[i]) {
+				primes.add(i);
+			}
+			for (int j = 0; j < primes.size() && 1L * i * primes.get(j) <= n; j++) {
+				isComposite[i * primes.get(j)] = true;
+				if (i % primes.get(j) == 0) {
 					break;
 				}
-
 			}
 		}
-		return invalid ? 0 : ret + 1;
+		return primes;
 	}
 
-	static int[][] dirs = { { 0, 1 }, { 1, 0 }, { -1, 0 }, { 0, -1 } };
-	static long MOD = 1000000007;
+	static long mod = 1000000007;
 
 	static long add(long a, long b) {
 		long r = a + b;
 		if (r < 0) {
-			r += MOD;
+			r += mod;
 		}
-		return r % MOD;
+		return r % mod;
 	}
 
 	static long mul(long a, long b) {
 		long r = a * b;
 		while (r < 0) {
-			r += MOD;
+			r += mod;
 		}
-		return r % MOD;
+		return r % mod;
 	}
 
 	static int gcd(int a, int b) {
@@ -168,15 +150,6 @@ public class ReadyGo {
 		return arr;
 	}
 
-	static char[][] getCharArr(Scanner in, int row, int col) {
-		char[][] arr = new char[row][];
-		for (int i = 0; i < row; i++) {
-			arr[i] = in.next().toCharArray();
-		}
-
-		return arr;
-	}
-
 	static String[] getLineArr(Scanner in, int size) {
 		String[] arr = new String[size];
 		for (int i = 0; i < size; i++) {
@@ -213,11 +186,87 @@ public class ReadyGo {
 		return edges;
 	}
 
+	/** graph */
+	static List<Integer>[] buildAdj(int n, int[][] edges, boolean directed) {
+		@SuppressWarnings("unchecked")
+		List<Integer>[] adj = new List[n];
+		for (int i = 0; i < adj.length; i++) {
+			adj[i] = new ArrayList<>();
+		}
+		for (int[] e : edges) {
+			adj[e[0]].add(e[1]);
+			if (!directed) {
+				adj[e[1]].add(e[0]);
+			}
+		}
+		return adj;
+	}
+
+	static List<Integer>[] buildAdjWithEdgeIndex(int n, int[][] edges, boolean directed) {
+		@SuppressWarnings("unchecked")
+		List<Integer>[] adj = new List[n];
+		for (int i = 0; i < adj.length; i++) {
+			adj[i] = new ArrayList<>();
+		}
+		for (int i = 0; i < edges.length; i++) {
+			int[] e = edges[i];
+			adj[e[0]].add(i);
+			if (!directed) {
+				adj[e[1]].add(i);
+			}
+		}
+		return adj;
+	}
+
+	private static class DSU {
+		int[] parent;
+
+		public DSU(int N) {
+			this.parent = new int[N];
+			for (int i = 0; i < N; i++) {
+				add(i);
+			}
+		}
+
+		public void add(int x) {
+			parent[x] = x;
+		}
+
+		public int find(int x) {
+			if (parent[x] != x)
+				parent[x] = find(parent[x]);
+			return parent[x];
+		}
+
+		public void union(int x, int y) {
+			if (find(x) != find(y)) {
+				parent[find(x)] = parent[find(y)];
+			}
+		}
+	}
+
 	static void set(int[][] a, int v) {
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
 				a[i][j] = v;
 			}
+		}
+	}
+
+	static void swap(int[] a, int i, int j) {
+		int t = a[i];
+		a[i] = a[j];
+		a[j] = t;
+	}
+
+	static <K> void inc(Map<K, Integer> m, K k) {
+		m.put(k, m.getOrDefault(k, 0) + 1);
+	}
+
+	static <K> void dec(Map<K, Integer> m, K k) {
+		m.put(k, m.getOrDefault(k, 0) - 1);
+		if (m.get(k) <= 0) {
+			m.remove(k);
 		}
 	}
 }

@@ -1,3 +1,4 @@
+package y2024.r1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,14 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Solution {
+public class SubsonicSubway {
 	public static void main(String[] args) throws FileNotFoundException {
 		try (Scanner in = new Scanner(new File("input.txt")); PrintWriter out = new PrintWriter("output.txt")) {
 			int t = in.nextInt();
 			for (int i = 1; i <= t; i++) {
-				String s = in.next();
-				int k = in.nextInt();
-				String r = solve(s, k);
+				int n = in.nextInt();
+				int[][] limits = getIntArr(in, n, 2);
+				double r = solve(limits);
 				out.println("Case #" + i + ": " + r);
 			}
 
@@ -23,97 +24,36 @@ public class Solution {
 
 	}
 
-	private static String solve(String s, int k) {
-		long nDecodings = maxDecodings(s.toCharArray());
-		String kth = getKth(s.toCharArray(), k);
-		return kth + " " + nDecodings;
+	private static double solve(int[][] limits) {
+		double[] speedBound = { 0, Double.MAX_VALUE };
+		for (int i = 0; i < limits.length; i++) {
+			speedBound[0] = Math.max(speedBound[0], 1d * (i + 1) / limits[i][1]);
+			if (limits[i][0] != 0) {
+				speedBound[1] = Math.min(speedBound[1], 1d * (i + 1) / limits[i][0]);
+			}
+		}
+		if (speedBound[0] <= speedBound[1]) {
+			return speedBound[0];
+		}
+		return -1;
 	}
 
-	static long maxDecodings(char[] chars) {
-		long[] dp = { 1, 1 };
-		for (int i = 0; i < chars.length; i++) {
-			long[] newDp = new long[2];
-			newDp[0] = dp[1];
-			if (chars[i] == '?') {
-				chars[i] = '1';
-			}
-			if (chars[i] == '0') {
-				newDp[1] = mAdd(newDp[1], dp[0]);
-			} else {
-				newDp[1] = mAdd(newDp[1], dp[1]);
-				if (i > 0 && chars[i - 1] != '0' && 26 >= Integer.parseInt("" + chars[i - 1] + chars[i])) {
-					newDp[1] = mAdd(newDp[1], dp[0]);
-				}
-			}
-			dp = newDp;
+	static long mod = 1000000007;
+
+	static long add(long a, long b) {
+		long r = a + b;
+		if (r < 0) {
+			r += mod;
 		}
-		return dp[1];
+		return r % mod;
 	}
 
-	static String getKth(char[] chars, int k) {
-		k--;
-		int qmCnt = 0;
-		for (int i = 0; i < chars.length; i++) {
-			if (chars[i] == '?') {
-				qmCnt++;
-			} else if (i > 0 && chars[i - 1] != '?' && chars[i] != '?') {
-				int x = chars[i] - '0';
-				if (x > 6) {
-					chars[i - 1] = '1';
-					qmCnt--;
-				}
-			}
+	static long mul(long a, long b) {
+		long r = a * b;
+		while (r < 0) {
+			r += mod;
 		}
-		int unit = 1;
-		if (chars[chars.length - 1] == '?') {
-			if (chars.length == 1) {
-				return "" + (char) ('9' - k - 1);
-			}
-			if (chars[chars.length - 2] == '?') {
-				int t = (26 - k % 26 - 1);
-				chars[chars.length - 1] = (char) ('0' + t % 10);
-				chars[chars.length - 2] = (char) ('0' + t / 10);
-				unit = 26;
-				qmCnt -= 2;
-			} else {
-				if (chars[chars.length - 2] == '1') {
-					chars[chars.length - 1] = (char) ('9' - k % 9 - 1);
-					unit = 9;
-					qmCnt--;
-				} else if (chars[chars.length - 2] == '2') {
-					chars[chars.length - 1] = (char) ('6' - k % 6 - 1);
-					unit = 6;
-					qmCnt--;
-				} else {
-					chars[chars.length - 1] = (char) ('9' - k % 9 - 1);
-					unit = 9;
-					qmCnt--;
-				}
-			}
-		}
-		k /= unit;
-		List<Integer> qPos = new ArrayList<>();
-		for (int i = 0; i < chars.length; i++) {
-			if (chars[i] == '?') {
-				qPos.add(i);
-			}
-		}
-		for (int i = 0; i < qmCnt; i++) {
-			int d = ((k >> (qmCnt - i - 1)) & 1);
-			chars[qPos.get(i)] = ((d == 0) ? '2' : '1');
-		}
-
-		return String.valueOf(chars);
-	}
-
-	static long mod = 998244353;
-
-	static long mAdd(long a, long b) {
-		return Math.floorMod(a + b, mod);
-	}
-
-	static long mMul(long a, long b) {
-		return Math.floorMod(a * b, mod);
+		return r % mod;
 	}
 
 	static int gcd(int a, int b) {
