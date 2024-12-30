@@ -3,7 +3,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -22,17 +23,63 @@ public class template {
 			}
 
 		}
-
 	}
 
-	static long mod = 1000000007;
-
-	static long mAdd(long a, long b) {
-		return Math.floorMod(a + b, mod);
+	static void debug(Object... o) {
+		System.out.println(Arrays.deepToString(o));
 	}
 
-	static long mMul(long a, long b) {
-		return Math.floorMod(a * b, mod);
+	static final long MOD = 1000000007;
+
+	// Math
+	static long add(long a, long b) {
+		return Math.floorMod(a + b, MOD);
+	}
+
+	static long mul(long a, long b) {
+		return Math.floorMod(a * b, MOD);
+	}
+
+	static long div(long a, long b) {
+		return mul(a, inv(b));
+	}
+
+	static long inv(long x) {
+		return modularMultiplicativeInverse(x, MOD);
+	}
+
+	static long pow(long b, long e) {
+		return fastPow(b, e, MOD);
+	}
+
+	// prerequisite: m is prime
+	static long modularMultiplicativeInverse(long x, long m) {
+		// fermet theory: x ^ (m - 1) = 1 (mod m)
+		return fastPow(x, m - 2, m);
+	}
+
+	static long fastPow(long base, long exp, long m) {
+		if (exp == 0) {
+			return 1;
+		} else if (exp % 2 == 1) {
+			long l = base * fastPow(base, exp - 1, m);
+			return l % m;
+		} else {
+			long t = fastPow(base, exp / 2, m);
+			return (t * t) % m;
+		}
+	}
+
+	static long fastPow(long base, long exp) {
+		if (exp == 0) {
+			return 1;
+		} else if (exp % 2 == 1) {
+			long l = base * fastPow(base, exp - 1);
+			return l;
+		} else {
+			long t = fastPow(base, exp / 2);
+			return t * t;
+		}
 	}
 
 	static int gcd(int a, int b) {
@@ -41,6 +88,40 @@ public class template {
 		} else {
 			return gcd(b, a % b);
 		}
+	}
+
+	boolean isPrime(long n) {
+		if (n == 1)
+			return false;
+		if (n <= 3)
+			return true;
+		if (n % 2 == 0)
+			return false;
+		for (int i = 2; i <= Math.sqrt(n); i++) {
+			if (n % i == 0)
+				return false;
+		}
+		return true;
+	}
+
+	// sieve
+	List<Integer> primes(int n) {
+		boolean arr[] = new boolean[n + 1];
+		Arrays.fill(arr, true);
+		arr[1] = false;
+		for (int i = 2; i <= Math.sqrt(n); i++) {
+			if (!arr[i])
+				continue;
+			for (int j = 2 * i; j <= n; j += i) {
+				arr[j] = false;
+			}
+		}
+		LinkedList<Integer> ll = new LinkedList<Integer>();
+		for (int i = 1; i <= n; i++) {
+			if (arr[i])
+				ll.add(i);
+		}
+		return ll;
 	}
 
 	static String str(List<Integer> a) {
@@ -96,6 +177,14 @@ public class template {
 		return arr;
 	}
 
+	static char[][] getCharArr(Scanner in, int row, int col) {
+		char[][] arr = new char[row][];
+		for (int i = 0; i < row; i++) {
+			arr[i] = getCharArr(in, col);
+		}
+		return arr;
+	}
+
 	static String[] getLineArr(Scanner in, int size) {
 		String[] arr = new String[size];
 		for (int i = 0; i < size; i++) {
@@ -112,24 +201,18 @@ public class template {
 		return arr;
 	}
 
-	static Map<Integer, List<Integer>> getEdges(Scanner in, int size, boolean directed) {
-		Map<Integer, List<Integer>> edges = new HashMap<>();
-		for (int i = 0; i < size; i++) {
-			int from = in.nextInt();
-			int to = in.nextInt();
-			if (!edges.containsKey(from)) {
-				edges.put(from, new ArrayList<Integer>());
-			}
-			edges.get(from).add(to);
-			if (!directed) {
-				if (!edges.containsKey(to)) {
-					edges.put(to, new ArrayList<Integer>());
-				}
-				edges.get(to).add(from);
-			}
+	static void swap(int[] a, int i, int j) {
+		int t = a[i];
+		a[i] = a[j];
+		a[j] = t;
+	}
 
+	static void set(int[][] a, int v) {
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = v;
+			}
 		}
-		return edges;
 	}
 
 	/** graph */
@@ -164,47 +247,6 @@ public class template {
 		return adj;
 	}
 
-	private static class DSU {
-		int[] parent;
-
-		public DSU(int N) {
-			this.parent = new int[N];
-			for (int i = 0; i < N; i++) {
-				add(i);
-			}
-		}
-
-		public void add(int x) {
-			parent[x] = x;
-		}
-
-		public int find(int x) {
-			if (parent[x] != x)
-				parent[x] = find(parent[x]);
-			return parent[x];
-		}
-
-		public void union(int x, int y) {
-			if (find(x) != find(y)) {
-				parent[find(x)] = parent[find(y)];
-			}
-		}
-	}
-
-	static void set(int[][] a, int v) {
-		for (int i = 0; i < a.length; i++) {
-			for (int j = 0; j < a[i].length; j++) {
-				a[i][j] = v;
-			}
-		}
-	}
-
-	static void swap(int[] a, int i, int j) {
-		int t = a[i];
-		a[i] = a[j];
-		a[j] = t;
-	}
-
 	static <K> void inc(Map<K, Integer> m, K k) {
 		m.put(k, m.getOrDefault(k, 0) + 1);
 	}
@@ -213,6 +255,34 @@ public class template {
 		m.put(k, m.getOrDefault(k, 0) - 1);
 		if (m.get(k) <= 0) {
 			m.remove(k);
+		}
+	}
+
+}
+
+class DSU {
+	int[] parent;
+
+	public DSU(int N) {
+		this.parent = new int[N];
+		for (int i = 0; i < N; i++) {
+			add(i);
+		}
+	}
+
+	public void add(int x) {
+		parent[x] = x;
+	}
+
+	public int find(int x) {
+		if (parent[x] != x)
+			parent[x] = find(parent[x]);
+		return parent[x];
+	}
+
+	public void union(int x, int y) {
+		if (find(x) != find(y)) {
+			parent[find(x)] = parent[find(y)];
 		}
 	}
 }
